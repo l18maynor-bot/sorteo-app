@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SorteoApp Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: #2a2a3a;
+    --accent: #7c6dfa;
+    --accent2: #fa6d9a;
+    --accent3: #6dfabd;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --fb: #1877f2;
+    --ig: #e1306c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG Effect */
+  body::before {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,109,250,0.08) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(250,109,154,0.07) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+  }
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: var(--muted); margin-top: 10px; font-size: 16px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.5s 0.15s ease both;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .badge-fb { background: rgba(24,119,242,0.15); color: var(--fb); }
+  .badge-ig { background: rgba(225,48,108,0.15); color: var(--ig); }
+  .badge-neutral { background: rgba(124,109,250,0.15); color: var(--accent); }
+
+  /* SOURCE INPUT */
+  .source-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .source-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    padding-top: 10px;
+    min-width: 110px;
+    color: var(--muted);
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-fb { background: var(--fb); }
+  .dot-ig { background: var(--ig); }
+
+  textarea {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  /* CONFIG */
+  .config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .config-item label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .config-item input[type="text"],
+  .config-item input[type="number"],
+  .config-item select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .config-item input:focus,
+  .config-item select:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .toggle {
+    position: relative;
+    width: 40px; height: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 22px;
+    transition: 0.2s;
+  }
+  .slider:before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    left: 3px; top: 3px;
+    transition: 0.2s;
+  }
+  input:checked + .slider { background: var(--accent); }
+  input:checked + .slider:before { transform: translateX(18px); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #5e4fe8);
+    color: white;
+    box-shadow: 0 4px 20px rgba(124,109,250,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,109,250,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger {
+    background: rgba(250,109,154,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(250,109,154,0.2);
+  }
+  .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+
+  /* COMMENT LIST */
+  .comment-list {
+    max-height: 280px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface2);
+  }
+  .comment-list::-webkit-scrollbar { width: 6px; }
+  .comment-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+  .comment-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+  .comment-item:last-child { border-bottom: none; }
+  .comment-item:hover { background: rgba(255,255,255,0.02); }
+  .comment-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+  }
+  .comment-name { font-weight: 500; color: var(--text); flex: 1; }
+  .comment-text { color: var(--muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .comment-src { font-size: 10px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .comment-count { color: var(--accent); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .stat-pill strong { color: var(--text); }
+
+  /* SPIN ANIMATION */
+  .spin-container {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    animation: fadeUp 0.3s ease both;
+  }
+  .spin-container.active { display: block; }
+  .drum {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: 800;
+    color: var(--accent);
+    min-height: 50px;
+    animation: drumroll 0.05s infinite;
+    letter-spacing: 1px;
+  }
+  @keyframes drumroll {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+  .drum.settled {
+    animation: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: clamp(26px, 5vw, 42px);
+  }
+  .spin-label { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  /* WINNER CARD */
+  #winnerSection { display: none; }
+  #winnerSection.show { display: block; animation: fadeUp 0.5s ease both; }
+
+  .winner-card-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  #winnerCanvas {
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(200,160,0,0.3);
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .empty .icon { font-size: 36px; margin-bottom: 10px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTION PANEL */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* NOTIFICATION */
+  .notif {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 999;
+    animation: slideIn 0.3s ease;
+    max-width: 280px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .source-row { flex-direction: column; }
+    .source-label { min-width: unset; padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo-mark">🎉 SorteoApp</div>
+    <h1>Sorteos <span>Multi-Red</span></h1>
+    <p class="subtitle">Pega comentarios de Facebook, Instagram o ambos — sortea en segundos</p>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('import')">📋 Importar</button>
+    <button class="tab" onclick="switchTab('config')">⚙️ Configurar</button>
+    <button class="tab" onclick="switchTab('sorteo')">🎲 Sortear</button>
+  </div>
+
+  <!-- TAB: IMPORT -->
+  <div id="tab-import" class="section active">
+
+    <div class="card">
+      <div class="card-title">
+        <span class="dot dot-fb"></span> Facebook
+        <span class="badge badge-fb">Pegar comentarios</span>
+      </div>
+      <div class="source-row">
+        <textarea id="fbText" placeholder="Pega aquí los comentarios de Facebook (uno por línea o copiados directo del post)&#10;&#10;Ejemplo:&#10;Maria Garcia: ¡Quiero participar!&#10;Juan López quiero ganar esto&#10;Carlos Ruiz participando 🔥"></textarea>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="parseComments('fb')">➕ Agregar al sorteo</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span class="dot dot-ig"></span> Instagram
+        <span class="badge badge-ig">Pegar comentarios</span>
+      </div>
+      <div class="source-row">
+        <textarea id="igText" placeholder="Pega aquí los comentarios de Instagram&#10;&#10;Ejemplo:&#10;@maria_garcia ¡Me encanta!&#10;@juanito123 participando con mi hermana&#10;@carlos_fit quiero ganar 💪"></textarea>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="parseComments('ig')">➕ Agregar al sorteo</button>
+    </div>
+
+    <!-- COMMENT POOL -->
+    <div class="card" id="poolCard">
+      <div class="card-title">
+        👥 Participantes
+        <span class="badge badge-neutral" id="poolCount">0 total</span>
+      </div>
+      <div class="stats-row" id="statsRow">
+        <div class="stat-pill">FB: <strong id="countFB">0</strong></div>
+        <div class="stat-pill">IG: <strong id="countIG">0</strong></div>
+        <div class="stat-pill">Únicos: <strong id="countUnique">0</strong></div>
+      </div>
+      <div class="comment-list" id="commentPool">
+        <div class="empty"><div class="icon">💬</div>Sin participantes aún</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="switchTab('sorteo')">🎲 Ir al Sorteo</button>
+        <button class="btn btn-danger btn-sm" onclick="clearPool()">🗑 Limpiar todo</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB: CONFIG -->
+  <div id="tab-config" class="section">
+    <div class="card">
+      <div class="card-title">⚙️ Configuración del Sorteo</div>
+      <div class="config-grid">
+        <div class="config-item">
+          <label>Nombre del Concurso</label>
+          <input type="text" id="cfgTitle" placeholder="¡Gran Sorteo!" value="Gran Sorteo">
+        </div>
+        <div class="config-item">
+          <label>Premio</label>
+          <input type="text" id="cfgPrize" placeholder="iPhone 15, Gift Card..." value="Premio Especial">
+        </div>
+        <div class="config-item">
+          <label>Ganadores a seleccionar</label>
+          <input type="number" id="cfgWinners" value="1" min="1" max="10">
+        </div>
+        <div class="config-item">
+          <label>Color Tema</label>
+          <select id="cfgTheme">
+            <option value="purple">🟣 Morado (default)</option>
+            <option value="gold">🟡 Dorado</option>
+            <option value="blue">🔵 Azul</option>
+            <option value="pink">🩷 Rosa</option>
+            <option value="green">🟢 Verde</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label>Logo de tu marca</label>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label for="cfgLogoFile" style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:10px 14px;transition:border-color 0.2s;font-size:13px;color:var(--muted);text-transform:none;letter-spacing:0;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-size:18px">🖼️</span>
+              <span id="logoFileName">Subir logo (PNG, JPG, SVG)</span>
+            </label>
+            <input type="file" id="cfgLogoFile" accept="image/*" style="display:none" onchange="handleLogoUpload(this)">
+            <div id="logoPreviewWrap" style="display:none;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+              <img id="logoPreview" style="height:36px;max-width:120px;object-fit:contain;border-radius:4px;">
+              <span id="logoPreviewName" style="font-size:12px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+              <button onclick="removeLogo()" style="background:rgba(250,109,154,0.1);border:1px solid rgba(250,109,154,0.2);color:var(--accent2);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px;">✕ Quitar</button>
+            </div>
+          </div>
+        </div>
+        <div class="config-item">
+          <label>Nombre de tu página/marca</label>
+          <input type="text" id="cfgBrand" placeholder="Tu Página" value="Tu Página">
+        </div>
+      </div>
+      <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+        <label class="toggle-row">
+          <label class="toggle"><input type="checkbox" id="cfgNoDupes" checked><span class="slider"></span></label>
+          Un solo ticket por usuario (sin duplicados)
+        </label>
+        <label class="toggle-row">
+          <label class="toggle"><input type="checkbox" id="cfgRequireAt"><span class="slider"></span></label>
+          Solo usuarios que etiquetan a alguien (@nombre)
+        </label>
+        <label class="toggle-row">
+          <label class="toggle"><input type="checkbox" id="cfgRequireWord"><span class="slider"></span></label>
+          Solo comentarios con palabra clave:
+          <input type="text" id="cfgKeyword" placeholder="ej: participando" style="width:130px; padding:6px 10px; border-radius:8px; background:var(--surface2); border:1px solid var(--border); color:var(--text); font-size:13px; outline:none;">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SORTEO -->
+  <div id="tab-sorteo" class="section">
+
+    <div class="card" id="preSorteo">
+      <div class="card-title">🎲 Listo para sortear</div>
+      <p style="color:var(--muted); font-size:14px; margin-bottom:20px;" id="readySummary">Agrega participantes primero.</p>
+      <button class="btn btn-primary" onclick="startDraw()" id="drawBtn">
+        🎰 ¡Girar la Ruleta!
+      </button>
+    </div>
+
+    <div class="spin-container" id="spinBox">
+      <p class="spin-label">🥁 Sorteando entre los participantes...</p>
+      <div class="drum" id="drumText">—</div>
+    </div>
+
+    <div id="winnerSection">
+      <div class="card">
+        <div class="card-title">🏆 Ganador(es)</div>
+        <div id="winnersList"></div>
+      </div>
+      <div class="winner-card-wrap">
+        <canvas id="winnerCanvas" width="600" height="380"></canvas>
+      </div>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="downloadCard()">💾 Descargar Tarjeta</button>
+        <button class="btn btn-secondary" onclick="drawAgain()">🔄 Nuevo Sorteo</button>
+        <button class="btn btn-secondary" onclick="copyWinnerText()">📋 Copiar Nombre</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let participants = []; // {name, source, text, color}
+let lastWinners = [];
+let logoDataURL = null;
+
+function handleLogoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    logoDataURL = e.target.result;
+    document.getElementById('logoPreview').src = logoDataURL;
+    document.getElementById('logoPreviewName').textContent = file.name;
+    document.getElementById('logoPreviewWrap').style.display = 'flex';
+    document.getElementById('logoFileName').textContent = '✅ Logo cargado';
+    notify('🖼️ Logo cargado correctamente');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+  logoDataURL = null;
+  document.getElementById('cfgLogoFile').value = '';
+  document.getElementById('logoPreviewWrap').style.display = 'none';
+  document.getElementById('logoFileName').textContent = 'Subir logo (PNG, JPG, SVG)';
+  notify('🗑 Logo eliminado');
+}
+
+const COLORS_FB = ['#1877f2','#4293fb','#74aaff'];
+const COLORS_IG = ['#e1306c','#fd5e7c','#c13584','#f56040'];
+const COLORS_N  = ['#7c6dfa','#5e4fe8','#a98dff'];
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  const tabs = ['import','config','sorteo'];
+  document.querySelectorAll('.tab')[tabs.indexOf(id)].classList.add('active');
+  if (id === 'sorteo') updateReadySummary();
+}
+
+// ─── PARSE COMMENTS ───────────────────────────────────────────────────────────
+function parseComments(source) {
+  const el = document.getElementById(source + 'Text');
+  const raw = el.value.trim();
+  if (!raw) { notify('Pega comentarios primero'); return; }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+  let added = 0;
+
+  lines.forEach(line => {
+    // Extract name: patterns like "Name:" or "@handle" or just first word
+    let name = '', text = line;
+    const colonMatch = line.match(/^(.+?):\s*(.*)$/);
+    const atMatch = line.match(/^(@[\w.]+)\s*(.*)/);
+    if (colonMatch) { name = colonMatch[1].trim(); text = colonMatch[2].trim(); }
+    else if (atMatch) { name = atMatch[1].trim(); text = atMatch[2].trim(); }
+    else {
+      const words = line.split(' ');
+      name = words[0];
+      text = words.slice(1).join(' ');
+    }
+    if (!name) return;
+    const colors = source === 'fb' ? COLORS_FB : COLORS_IG;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    participants.push({ name, source, text, color });
+    added++;
+  });
+
+  el.value = '';
+  renderPool();
+  notify(`✅ ${added} comentario(s) de ${source.toUpperCase()} agregados`);
+}
+
+// ─── RENDER POOL ──────────────────────────────────────────────────────────────
+function renderPool() {
+  const pool = document.getElementById('commentPool');
+  const cfg = getConfig();
+  const visible = getFiltered();
+
+  document.getElementById('poolCount').textContent = visible.length + ' total';
+  document.getElementById('countFB').textContent = participants.filter(p=>p.source==='fb').length;
+  document.getElementById('countIG').textContent = participants.filter(p=>p.source==='ig').length;
+  document.getElementById('countUnique').textContent = [...new Set(participants.map(p=>p.name))].length;
+
+  if (participants.length === 0) {
+    pool.innerHTML = '<div class="empty"><div class="icon">💬</div>Sin participantes aún</div>';
+    return;
+  }
+
+  const display = cfg.noDupes ? [...new Map(participants.map(p=>[p.name,p])).values()] : participants;
+  pool.innerHTML = display.slice(0,200).map(p => {
+    const initials = p.name.replace('@','').slice(0,2).toUpperCase();
+    const srcClass = p.source === 'fb' ? 'badge-fb' : 'badge-ig';
+    const tick = cfg.noDupes ? 1 : participants.filter(x=>x.name===p.name).length;
+    return `<div class="comment-item">
+      <div class="comment-avatar" style="background:${p.color}22;color:${p.color}">${initials}</div>
+      <span class="comment-name">${p.name}</span>
+      <span class="comment-text">${p.text}</span>
+      <span class="comment-src badge ${srcClass}">${p.source.toUpperCase()}</span>
+      ${tick>1?`<span class="comment-count">×${tick}</span>`:''}
+    </div>`;
+  }).join('');
+  if (display.length > 200) pool.innerHTML += `<div class="comment-item" style="justify-content:center;color:var(--muted);font-size:12px">...y ${display.length-200} más</div>`;
+}
+
+function clearPool() {
+  if (!confirm('¿Borrar todos los participantes?')) return;
+  participants = [];
+  renderPool();
+  notify('🗑 Lista limpiada');
+}
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+function getConfig() {
+  return {
+    title: document.getElementById('cfgTitle').value || 'Gran Sorteo',
+    prize: document.getElementById('cfgPrize').value || 'Premio',
+    winners: parseInt(document.getElementById('cfgWinners').value) || 1,
+    theme: document.getElementById('cfgTheme').value,
+    logo: logoDataURL,
+    brand: document.getElementById('cfgBrand').value || 'Sorteo',
+    noDupes: document.getElementById('cfgNoDupes').checked,
+    requireAt: document.getElementById('cfgRequireAt').checked,
+    requireWord: document.getElementById('cfgRequireWord').checked,
+    keyword: document.getElementById('cfgKeyword').value.toLowerCase().trim(),
+  };
+}
+
+function getFiltered() {
+  const cfg = getConfig();
+  let pool = [...participants];
+  if (cfg.requireAt) pool = pool.filter(p => p.text.includes('@') || p.name.startsWith('@'));
+  if (cfg.requireWord && cfg.keyword) pool = pool.filter(p => (p.text + p.name).toLowerCase().includes(cfg.keyword));
+  if (cfg.noDupes) {
+    const seen = new Set();
+    pool = pool.filter(p => { if(seen.has(p.name)) return false; seen.add(p.name); return true; });
+  }
+  return pool;
+}
+
+function updateReadySummary() {
+  const filtered = getFiltered();
+  const cfg = getConfig();
+  document.getElementById('readySummary').textContent =
+    `${filtered.length} participante(s) elegibles — se seleccionará ${cfg.winners} ganador(es)`;
+}
+
+// ─── DRAW ─────────────────────────────────────────────────────────────────────
+function startDraw() {
+  const filtered = getFiltered();
+  const cfg = getConfig();
+  if (filtered.length === 0) { notify('⚠️ No hay participantes para sortear'); return; }
+  if (filtered.length < cfg.winners) { notify('⚠️ Menos participantes que ganadores requeridos'); return; }
+
+  document.getElementById('preSorteo').style.display = 'none';
+  document.getElementById('winnerSection').classList.remove('show');
+  const spinBox = document.getElementById('spinBox');
+  spinBox.classList.add('active');
+
+  const drum = document.getElementById('drumText');
+  drum.classList.remove('settled');
+
+  let frame = 0;
+  const duration = 120; // frames
+  const interval = setInterval(() => {
+    const rnd = filtered[Math.floor(Math.random() * filtered.length)];
+    drum.textContent = rnd.name;
+    frame++;
+    if (frame >= duration) {
+      clearInterval(interval);
+      // Pick winners
+      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+      lastWinners = shuffled.slice(0, cfg.winners);
+      drum.textContent = lastWinners[0].name;
+      drum.classList.add('settled');
+      setTimeout(() => {
+        spinBox.classList.remove('active');
+        showWinners();
+      }, 800);
+    }
+  }, 35);
+}
+
+function showWinners() {
+  const cfg = getConfig();
+  const section = document.getElementById('winnerSection');
+  section.classList.add('show');
+
+  const list = document.getElementById('winnersList');
+  list.innerHTML = lastWinners.map((w,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;${i<lastWinners.length-1?'border-bottom:1px solid var(--border)':''}">
+      <span style="font-size:24px">${i===0?'🥇':i===1?'🥈':'🥉'}</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700">${w.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${w.source.toUpperCase()} · ${w.text || 'sin texto'}</div>
+      </div>
+    </div>
+  `).join('');
+
+  drawWinnerCard();
+}
+
+function drawAgain() {
+  lastWinners = [];
+  document.getElementById('winnerSection').classList.remove('show');
+  document.getElementById('preSorteo').style.display = '';
+  updateReadySummary();
+}
+
+function copyWinnerText() {
+  const names = lastWinners.map(w=>w.name).join(', ');
+  navigator.clipboard.writeText(names).then(() => notify('✅ Nombre(s) copiado(s)'));
+}
+
+// ─── WINNER CARD CANVAS ───────────────────────────────────────────────────────
+const THEMES = {
+  gold:   { accent:'#f5c842', accent2:'#ffaa00', glow:'rgba(245,200,66,0.5)',  glowR:'rgba(255,120,0,0.3)'  },
+  purple: { accent:'#a78bfa', accent2:'#7c6dfa', glow:'rgba(167,139,250,0.4)', glowR:'rgba(124,109,250,0.3)'},
+  blue:   { accent:'#38b6ff', accent2:'#0057ff', glow:'rgba(56,182,255,0.4)',  glowR:'rgba(0,87,255,0.3)'  },
+  pink:   { accent:'#ff5fa0', accent2:'#ff2d78', glow:'rgba(255,95,160,0.4)',  glowR:'rgba(255,45,120,0.3)'},
+  green:  { accent:'#3dffa0', accent2:'#00d462', glow:'rgba(61,255,160,0.4)',  glowR:'rgba(0,212,98,0.3)'  },
+};
+
+function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return{r,g,b};}
+
+function drawWinnerCard() {
+  const cfg = getConfig();
+  const t = THEMES[cfg.theme] || THEMES.gold;
+  const canvas = document.getElementById('winnerCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = 900, H = 560;
+  canvas.width = W; canvas.height = H;
+
+  // ── FONDO negro profundo
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0,0,W,H);
+
+  // ── Hexágonos decorativos fondo (derecha)
+  ctx.save();
+  ctx.globalAlpha = 0.07;
+  ctx.strokeStyle = t.accent;
+  ctx.lineWidth = 1;
+  for(let row=0;row<6;row++){for(let col=0;col<5;col++){
+    const hx=W-220+col*52+(row%2)*26, hy=30+row*46;
+    ctx.beginPath();
+    for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;ctx.lineTo(hx+20*Math.cos(a),hy+20*Math.sin(a));}
+    ctx.closePath(); ctx.stroke();
+  }}
+  ctx.restore();
+
+  // ── Glow izquierda (dorado)
+  const gl=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,320);
+  gl.addColorStop(0,t.glow); gl.addColorStop(1,'transparent');
+  ctx.fillStyle=gl; ctx.fillRect(0,0,W,H);
+
+  // ── Glow derecha (naranja/secundario)
+  const gr=ctx.createRadialGradient(W,H*0.5,0,W,H*0.5,260);
+  gr.addColorStop(0,t.glowR); gr.addColorStop(1,'transparent');
+  ctx.fillStyle=gr; ctx.fillRect(0,0,W,H);
+
+  // ── Borde dorado exterior
+  ctx.save();
+  const bgrad=ctx.createLinearGradient(0,0,W,H);
+  bgrad.addColorStop(0,t.accent); bgrad.addColorStop(0.5,'#fff8e0'); bgrad.addColorStop(1,t.accent2);
+  ctx.strokeStyle=bgrad; ctx.lineWidth=3; ctx.globalAlpha=0.9;
+  roundRect(ctx,4,4,W-8,H-8,18); ctx.stroke();
+  ctx.restore();
+
+  // ── Borde interior delgado
+  ctx.save();
+  ctx.strokeStyle=t.accent; ctx.lineWidth=1; ctx.globalAlpha=0.25;
+  roundRect(ctx,12,12,W-24,H-24,14); ctx.stroke();
+  ctx.restore();
+
+  // ── Franja diagonal izquierda (efecto decorativo)
+  ctx.save();
+  ctx.globalAlpha=0.06;
+  const dg=ctx.createLinearGradient(0,0,200,H);
+  dg.addColorStop(0,t.accent); dg.addColorStop(1,'transparent');
+  ctx.fillStyle=dg;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(180,0); ctx.lineTo(80,H); ctx.lineTo(0,H); ctx.fill();
+  ctx.restore();
+
+  // ── Confeti / partículas doradas
+  const confPos=[[80,40],[160,25],[820,35],[860,80],[760,20],[700,55],[200,520],[850,490],[100,490],[780,510],[400,30],[500,520]];
+  confPos.forEach(([cx,cy],i)=>{
+    ctx.save();
+    ctx.fillStyle = i%3===0 ? t.accent : i%3===1 ? '#fff' : t.accent2;
+    ctx.globalAlpha=0.5+Math.random()*0.3;
+    ctx.translate(cx,cy); ctx.rotate(i*0.7);
+    ctx.fillRect(-4,-2,8,4);
+    ctx.restore();
+  });
+
+  // ────────────────────────────────────────────────
+  // ZONA SUPERIOR: Logo + Sorteo Oficial + Sello
+  // ────────────────────────────────────────────────
+
+  // Sello "SORTEO VERIFICADO" — esquina superior derecha
+  ctx.save();
+  ctx.translate(W-80, 78);
+  // Círculo exterior
+  const sg=ctx.createRadialGradient(0,0,20,0,0,55);
+  sg.addColorStop(0,'#2a2000'); sg.addColorStop(1,'#1a1000');
+  ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(0,0,55,0,Math.PI*2); ctx.fill();
+  // Borde dentado (estrella de 12 pts)
+  ctx.beginPath();
+  for(let i=0;i<24;i++){const a=Math.PI/12*i,r=i%2===0?60:53;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
+  ctx.closePath();
+  const sdg=ctx.createLinearGradient(-60,-60,60,60);
+  sdg.addColorStop(0,t.accent); sdg.addColorStop(1,t.accent2);
+  ctx.fillStyle=sdg; ctx.globalAlpha=0.9; ctx.fill();
+  // Interior del sello
+  ctx.globalAlpha=1;
+  ctx.fillStyle='#1a1000'; ctx.beginPath(); ctx.arc(0,0,48,0,Math.PI*2); ctx.fill();
+  // Check ✓
+  ctx.strokeStyle=t.accent; ctx.lineWidth=5; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(-14,2); ctx.lineTo(-4,14); ctx.lineTo(16,-12); ctx.stroke();
+  // Texto circular
+  ctx.fillStyle=t.accent; ctx.font='bold 8px Arial'; ctx.textAlign='center';
+  ctx.fillText('SORTEO', 0, -30);
+  ctx.fillText('VERIFICADO', 0, 38);
+  ctx.restore();
+
+  // "SORTEO OFICIAL" texto + escudo
+  ctx.textAlign='center';
+  ctx.fillStyle=t.accent; ctx.font='bold 11px Arial'; ctx.letterSpacing='2px';
+  ctx.fillText('✦  SORTEO OFICIAL  ✦', W/2+60, 42);
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='12px Arial';
+  ctx.fillText('Realizado con SorteoApp.pro', W/2+60, 62);
+
+  // ── Línea separadora dorada superior
+  const lsg=ctx.createLinearGradient(30,0,W-30,0);
+  lsg.addColorStop(0,'transparent'); lsg.addColorStop(0.2,t.accent); lsg.addColorStop(0.8,t.accent); lsg.addColorStop(1,'transparent');
+  ctx.strokeStyle=lsg; ctx.lineWidth=1; ctx.globalAlpha=0.4;
+  ctx.beginPath(); ctx.moveTo(30,78); ctx.lineTo(W-30,78); ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // ────────────────────────────────────────────────
+  // ZONA CENTRAL: ¡GANADOR! + Nombre
+  // ────────────────────────────────────────────────
+  ctx.textAlign='center';
+
+  // "¡GANADOR!" label
+  ctx.font='bold 26px Syne, Arial';
+  ctx.fillStyle=t.accent;
+  ctx.shadowColor=t.accent; ctx.shadowBlur=18;
+  ctx.fillText('¡GANADOR!', W/2, 128);
+  ctx.shadowBlur=0;
+
+  // Nombre del ganador — tamaño adaptativo para que no desborde
+  const winner = lastWinners[0]?.name || 'Ganador';
+  const winnerSrc = lastWinners[0]?.source || '';
+  const nameLen = winner.length;
+  const fontSize = nameLen > 18 ? 44 : nameLen > 14 ? 54 : nameLen > 10 ? 66 : 80;
+  ctx.font = `bold ${fontSize}px Syne, Arial`;
+
+  // Medir ancho real y escalar si aún desborda
+  ctx.save();
+  let measuredW = ctx.measureText(truncate(winner, 22)).width;
+  const maxNameW = W - 180;
+  if (measuredW > maxNameW) {
+    const scale = maxNameW / measuredW;
+    ctx.setTransform(scale, 0, 0, 1, W/2 * (1 - scale), 0);
+  }
+  ctx.shadowColor='rgba(255,255,255,0.6)'; ctx.shadowBlur=30;
+  ctx.fillStyle='#ffffff';
+  ctx.fillText(truncate(winner, 22), W/2, 200);
+  ctx.shadowBlur=0;
+  ctx.restore();
+
+  // Ramas de laurel — SIEMPRE a los lados, fijas
+  drawLaurel(ctx, 68, 185, t.accent, false);
+  drawLaurel(ctx, W-68, 185, t.accent, true);
+
+  // Badge de red social (FB / IG) debajo del nombre
+  if (winnerSrc) {
+    const isFB = winnerSrc === 'fb';
+    const srcColor = isFB ? '#1877f2' : '#e1306c';
+    const srcLabel = isFB ? '📘 Facebook' : '📷 Instagram';
+    const bw = 130, bh = 26, bx = W/2 - bw/2, by = 210;
+    ctx.save();
+    ctx.fillStyle = isFB ? 'rgba(24,119,242,0.15)' : 'rgba(225,48,108,0.15)';
+    ctx.strokeStyle = srcColor; ctx.lineWidth = 1;
+    roundRect(ctx, bx, by, bw, bh, 13); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = srcColor; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(srcLabel, W/2, by + 17);
+    ctx.restore();
+  }
+
+  if(lastWinners.length > 1){
+    ctx.font='bold 30px Syne, Arial';
+    lastWinners.slice(1).forEach((w,i)=>{
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.fillText(truncate(w.name,22), W/2, 248+i*38);
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // ZONA PREMIO
+  // ────────────────────────────────────────────────
+  const pY = 258;
+  // Fondo pill del premio
+  ctx.save();
+  ctx.fillStyle='rgba(20,14,0,0.7)';
+  ctx.strokeStyle=t.accent; ctx.lineWidth=1.5;
+  roundRect(ctx, 60, pY, W-120, 68, 12);
+  ctx.fill(); ctx.stroke();
+  ctx.restore();
+
+  // Líneas decorativas a los lados del label PREMIO
+  ctx.fillStyle=t.accent; ctx.font='bold 11px Arial'; ctx.textAlign='center';
+  ctx.fillText('— PREMIO —', W/2, pY+22);
+  ctx.fillStyle='#ffffff'; ctx.font='bold 28px Syne, Arial';
+  ctx.fillText(cfg.prize.toUpperCase(), W/2, pY+56);
+
+  // ── Línea separadora inferior
+  ctx.strokeStyle=lsg; ctx.lineWidth=1; ctx.globalAlpha=0.3;
+  ctx.beginPath(); ctx.moveTo(30,356); ctx.lineTo(W-30,356); ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // ────────────────────────────────────────────────
+  // ZONA INFERIOR: 3 bloques de info + barra verde
+  // ────────────────────────────────────────────────
+  const infoY = 375;
+  const blocks = [
+    { icon:'📅', label:'FECHA DEL SORTEO', val: new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) },
+    { icon:'👥', label:'SORTEO REALIZADO EN', val:'SorteoApp.pro' },
+    { icon:'🔒', label:'ID DEL SORTEO', val:'#SRT-'+Date.now().toString().slice(-8) },
+  ];
+  const bw=(W-80)/3, bpad=8;
+  blocks.forEach((b,i)=>{
+    const bx=40+i*(bw+bpad);
+    // Fondo
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,0.04)';
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+    roundRect(ctx,bx,infoY,bw,62,8); ctx.fill(); ctx.stroke();
+    ctx.restore();
+    // Icono
+    ctx.font='16px serif'; ctx.textAlign='left';
+    ctx.fillText(b.icon, bx+10, infoY+22);
+    // Label
+    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='bold 9px Arial';
+    ctx.fillText(b.label, bx+34, infoY+20);
+    // Valor
+    ctx.fillStyle='#ffffff'; ctx.font='bold 13px Syne, Arial';
+    ctx.fillText(b.val, bx+34, infoY+40);
+  });
+
+  // ── Barra inferior verde "SORTEO 100% VÁLIDO"
+  const barY = H-58;
+  ctx.save();
+  ctx.fillStyle='rgba(0,40,10,0.95)';
+  ctx.strokeStyle='#00c853'; ctx.lineWidth=1.5;
+  roundRect(ctx,40,barY,W-80,42,10); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  // Escudo check
+  ctx.font='18px serif'; ctx.textAlign='left';
+  ctx.fillText('✅', 56, barY+28);
+  ctx.fillStyle='#00e676'; ctx.font='bold 13px Syne, Arial';
+  ctx.fillText('SORTEO 100% VÁLIDO', 86, barY+20);
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='11px Arial';
+  ctx.fillText('Transparente  •  Seguro  •  Verificado', 86, barY+36);
+  // Derecha
+  ctx.textAlign='right';
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='10px Arial';
+  ctx.fillText('VERIFICA EN:', W-56, barY+20);
+  ctx.fillStyle='#00e676'; ctx.font='bold 11px Arial';
+  ctx.fillText('sorteoapp.pro/verificar', W-56, barY+36);
+
+  // ────────────────────────────────────────────────
+  // LOGO — esquina superior izquierda
+  // ────────────────────────────────────────────────
+  if (cfg.logo) {
+    const img = new Image();
+    img.onload = () => {
+      const maxW=160, maxH=72;
+      let lw=(img.width/img.height)*maxH, lh=maxH;
+      if(lw>maxW){lw=maxW; lh=(img.height/img.width)*maxW;}
+      const lx=28, ly=12;
+      // Fondo pill negro
+      ctx.save();
+      ctx.fillStyle='rgba(0,0,0,0.75)';
+      ctx.strokeStyle=t.accent; ctx.lineWidth=1.5;
+      roundRect(ctx,lx-8,ly-6,lw+16,lh+12,10); ctx.fill(); ctx.stroke();
+      ctx.globalAlpha=0.95;
+      ctx.drawImage(img,lx,ly,lw,lh);
+      ctx.restore();
+    };
+    img.src=cfg.logo;
+  } else {
+    // Texto marca si no hay logo
+    ctx.textAlign='left';
+    ctx.fillStyle=t.accent; ctx.font='bold 15px Syne, Arial';
+    ctx.fillText(cfg.brand.toUpperCase(), 36, 48);
+  }
+}
+
+function drawLaurel(ctx, cx, cy, color, flip) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  if(flip) ctx.scale(-1,1);
+  const leaves=[[0,0],[12,-6],[22,-14],[30,-23],[35,-33],[37,-43]];
+  leaves.forEach(([lx,ly],i)=>{
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(-0.25 - i*0.12);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.65 - i*0.05;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 5, 11, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+  ctx.restore();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+function truncate(str, max) {
+  return str.length > max ? str.slice(0,max-1)+'…' : str;
+}
+
+function downloadCard() {
+  const canvas = document.getElementById('winnerCanvas');
+  const a = document.createElement('a');
+  a.download = 'ganador-sorteo.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  notify('📥 Tarjeta descargada');
+}
+
+// ─── NOTIFY ───────────────────────────────────────────────────────────────────
+function notify(msg) {
+  const n = document.createElement('div');
+  n.className = 'notif';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3000);
+}
+
+// ─── DEMO DATA ────────────────────────────────────────────────────────────────
+function loadDemo() {
+  const fbDemos = [
+    'Maria Garcia: ¡Participando, esto está increíble!',
+    'Juan Lopez: quiero ganar esto 🔥',
+    'Carlos Ruiz: participando con toda',
+    'Ana Torres: me encantaría ganar',
+    'Pedro Soto: Aquí estoy participando!',
+    'Laura Mendez: Participando, suerte para todos',
+    'Diego Herrera: yo quiero participar',
+  ];
+  const igDemos = [
+    '@mariafitness participando 💪',
+    '@juanito_cr7 quiero el premio',
+    '@carlos_gym aquí participando con @laura',
+    '@ana_belleza me uno al sorteo!',
+    '@pedro123 participando desde México',
+  ];
+  document.getElementById('fbText').value = fbDemos.join('\n');
+  document.getElementById('igText').value = igDemos.join('\n');
+  notify('📋 Datos de demo cargados — haz clic en Agregar');
+}
+
+// Add demo button hint
+window.onload = () => {
+  const imp = document.getElementById('tab-import');
+  const hint = document.createElement('div');
+  hint.style.cssText = 'text-align:right;margin-bottom:12px;';
+  hint.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;
+  imp.insertBefore(hint, imp.firstChild);
+};
+</script>
+</body>
+</html>
