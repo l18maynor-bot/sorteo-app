@@ -1,9 +1,8 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
-import httpx, os, hashlib, secrets
+import httpx, os, hashlib, secrets, random, base64
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,18 +10,37 @@ load_dotenv()
 app = FastAPI(title="SorteoApp API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+# ── Supabase ──────────────────────────────────
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY")
-
 HEADERS = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
     "Content-Type": "application/json"
 }
 
+# ── PayPal ────────────────────────────────────
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_SECRET    = os.getenv("PAYPAL_SECRET")
+PAYPAL_MODE      = os.getenv("PAYPAL_MODE", "sandbox")
+PAYPAL_BASE      = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
+PLAN_PRICE       = "9.99"  # USD — cambia cuando pases a Live
+PLAN_CURRENCY    = "USD"
+
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
+async def get_paypal_token() -> str:
+    credentials = base64.b64encode(f"{PAYPAL_CLIENT_ID}:{PAYPAL_SECRET}".encode()).decode()
+    async with httpx.AsyncClient() as client:
+        r = await client.post(
+            f"{PAYPAL_BASE}/v1/oauth2/token",
+            headers={"Authorization": f"Basic {credentials}", "Content-Type": "application/x-www-form-urlencoded"},
+            data="grant_type=client_credentials"
+        )
+        return r.json()["access_token"]
+
+# ── Modelos ───────────────────────────────────
 class UserRegister(BaseModel):
     email: str
     password: str
@@ -30,6 +48,12 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     email: str
     password: str
+
+class PaymentCapture(BaseModel):
+    order_id: str
+    email: str
+
+# ── RUTAS ─────────────────────────────────────
 
 @app.get("/")
 async def root():
@@ -39,14 +63,12 @@ async def root():
 @app.post("/auth/register")
 async def register(user: UserRegister):
     async with httpx.AsyncClient() as client:
-        # Verificar si ya existe
         check = await client.get(
             f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}",
             headers=HEADERS
         )
         if check.json():
             raise HTTPException(400, "Este email ya está registrado")
-        # Crear usuario
         r = await client.post(
             f"{SUPABASE_URL}/rest/v1/usuarios",
             headers={**HEADERS, "Prefer": "return=representation"},
@@ -75,7 +97,6 @@ async def login(user: UserLogin):
         db_user = data[0]
         if db_user["password_hash"] != hash_password(user.password):
             raise HTTPException(401, "Email o contraseña incorrectos")
-        # Token simple
         token = secrets.token_hex(32)
         return {
             "ok": True,
@@ -85,15 +106,73 @@ async def login(user: UserLogin):
             "sorteos_mes": db_user["sorteos_mes"]
         }
 
+# ── PAYPAL: Crear orden ───────────────────────
+@app.post("/payment/create")
+async def create_payment(data: dict):
+    email = data.get("email")
+    if not email:
+        raise HTTPException(400, "Email requerido")
+    try:
+        token = await get_paypal_token()
+        async with httpx.AsyncClient() as client:
+            r = await client.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+                json={
+                    "intent": "CAPTURE",
+                    "purchase_units": [{
+                        "amount": {"currency_code": PLAN_CURRENCY, "value": PLAN_PRICE},
+                        "description": f"SorteoApp Pro — {email}"
+                    }],
+                    "application_context": {
+                        "brand_name": "SorteoApp",
+                        "user_action": "PAY_NOW"
+                    }
+                }
+            )
+            order = r.json()
+            return {"order_id": order["id"], "status": order["status"]}
+    except Exception as e:
+        raise HTTPException(500, f"Error al crear pago: {str(e)}")
+
+# ── PAYPAL: Capturar pago ─────────────────────
+@app.post("/payment/capture")
+async def capture_payment(data: PaymentCapture):
+    try:
+        token = await get_paypal_token()
+        async with httpx.AsyncClient() as client:
+            # Capturar el pago en PayPal
+            r = await client.post(
+                f"{PAYPAL_BASE}/v2/checkout/orders/{data.order_id}/capture",
+                headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+            )
+            result = r.json()
+            if result.get("status") != "COMPLETED":
+                raise HTTPException(400, "Pago no completado")
+
+            # Actualizar plan en Supabase
+            update = await client.patch(
+                f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{data.email}",
+                headers={**HEADERS, "Prefer": "return=representation"},
+                json={"plan": "pro", "sorteos_mes": 0}
+            )
+            return {
+                "ok": True,
+                "mensaje": "¡Pago exitoso! Plan actualizado a Pro",
+                "plan": "pro"
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Error al capturar pago: {str(e)}")
+
 # ── SORTEO ────────────────────────────────────
 @app.post("/sorteo/run")
 async def run_sorteo(data: dict):
-    import random
     comments = data.get("comments", [])
-    config = data.get("config", {})
+    config   = data.get("config", {})
     if config.get("no_dupes", True):
-        seen = set()
-        unique = []
+        seen, unique = set(), []
         for c in comments:
             uid = c.get("from", {}).get("id") or c.get("username") or c.get("name")
             if uid not in seen:
