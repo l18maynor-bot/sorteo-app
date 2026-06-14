@@ -52,6 +52,79 @@
     z-index: 0;
   }
 
+  /* UPGRADE MODAL */
+  #upgradeModal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    backdrop-filter: blur(4px);
+  }
+  #upgradeModal.show { display: flex; }
+  .upgrade-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px;
+    width: 100%;
+    max-width: 420px;
+    margin: 20px;
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+  }
+  .upgrade-close {
+    position: absolute; top: 16px; right: 16px;
+    background: transparent; border: none;
+    color: var(--muted); font-size: 20px; cursor: pointer;
+  }
+  .upgrade-close:hover { color: var(--text); }
+  .upgrade-header { text-align: center; margin-bottom: 24px; }
+  .upgrade-header .crown { font-size: 42px; display: block; margin-bottom: 8px; }
+  .upgrade-header h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); }
+  .upgrade-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .upgrade-price {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(124,109,250,0.1), rgba(250,109,154,0.1));
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .upgrade-price .amount {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .upgrade-price .period { color: var(--muted); font-size: 14px; }
+  .upgrade-features { margin-bottom: 24px; }
+  .upgrade-feature {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--muted);
+  }
+  .upgrade-feature:last-child { border-bottom: none; }
+  .upgrade-feature .check { color: #00e676; font-size: 16px; }
+  #paypal-button-container { margin-top: 8px; }
+  #paypal-loading {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 16px;
+    display: none;
+  }
+  #paypal-success {
+    text-align: center;
+    padding: 20px;
+    display: none;
+  }
+  #paypal-success .success-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+  #paypal-success h3 { font-family: 'Syne', sans-serif; color: #00e676; font-size: 20px; margin-bottom: 8px; }
+  #paypal-success p { color: var(--muted); font-size: 14px; }
+
   /* LOGIN SCREEN */
   #loginScreen {
     position: fixed;
@@ -411,8 +484,42 @@
 
   @media (max-width: 600px) { .source-row { flex-direction: column; } .source-label { min-width: unset; padding-top: 0; } }
 </style>
+<script src="https://www.paypal.com/sdk/js?client-id=AS37aIPXbBtYYwwpVooBC3MM4mt31XSMZg1b2_THs8TwCDCIebmJoz3FxlWrEf-6D_IPCQo-QQkPJ_MB&currency=USD"></script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL DE UPGRADE A PRO                                  -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="upgradeModal">
+  <div class="upgrade-box">
+    <button class="upgrade-close" onclick="closeUpgrade()">✕</button>
+    <div class="upgrade-header">
+      <span class="crown">👑</span>
+      <h2>Upgrade a Pro</h2>
+      <p>Sorteos ilimitados cada mes</p>
+    </div>
+    <div class="upgrade-price">
+      <div class="amount">$9.99</div>
+      <div class="period">USD / mes</div>
+    </div>
+    <div class="upgrade-features">
+      <div class="upgrade-feature"><span class="check">✓</span> Sorteos ilimitados por mes</div>
+      <div class="upgrade-feature"><span class="check">✓</span> Múltiples cuentas FB + IG</div>
+      <div class="upgrade-feature"><span class="check">✓</span> Tarjeta de ganador premium</div>
+      <div class="upgrade-feature"><span class="check">✓</span> Soporte prioritario</div>
+      <div class="upgrade-feature"><span class="check">✓</span> Sin anuncios</div>
+    </div>
+    <div id="paypal-button-container"></div>
+    <div id="paypal-loading">⏳ Procesando pago...</div>
+    <div id="paypal-success">
+      <span class="success-icon">🎉</span>
+      <h3>¡Pago exitoso!</h3>
+      <p>Tu plan ha sido actualizado a <strong>Pro</strong>.<br>Recarga la página para continuar.</p>
+      <button class="btn btn-primary" style="margin-top:16px;width:100%;" onclick="location.reload()">Continuar →</button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
 <!-- PANTALLA DE LOGIN                                       -->
@@ -448,7 +555,10 @@
     <span class="user-email" id="userEmail"></span>
     <span class="user-plan" id="userPlan">GRATIS</span>
   </div>
-  <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button id="upgradeBtn" onclick="openUpgrade()" style="display:none;background:linear-gradient(135deg,#f5c842,#ff9900);border:none;color:#000;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;">👑 Upgrade Pro</button>
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════════ -->
@@ -666,7 +776,11 @@ async function submitAuth() {
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userEmail').textContent = email;
     document.getElementById('userPlan').textContent = (data.plan || 'gratis').toUpperCase();
-    if (data.plan === 'pro') document.getElementById('userPlan').classList.add('pro');
+    if (data.plan === 'pro') {
+      document.getElementById('userPlan').classList.add('pro');
+    } else {
+      document.getElementById('upgradeBtn').style.display = 'block';
+    }
     if (authMode === 'register') notify('🎉 ¡Cuenta creada! Bienvenido a SorteoApp');
     else notify('👋 Bienvenido de vuelta, ' + email.split('@')[0]);
   } catch(e) {
@@ -929,6 +1043,77 @@ function downloadCard(){const canvas=document.getElementById('winnerCanvas');con
 function notify(msg){const n=document.createElement('div');n.className='notif';n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3000);}
 
 function loadDemo(){document.getElementById('fbText').value=['Maria Garcia: ¡Participando, esto está increíble!','Juan Lopez: quiero ganar esto 🔥','Carlos Ruiz: participando con toda','Ana Torres: me encantaría ganar','Pedro Soto: Aquí estoy participando!'].join('\n');document.getElementById('igText').value=['@mariafitness participando 💪','@juanito_cr7 quiero el premio','@carlos_gym aquí participando con @laura'].join('\n');notify('📋 Datos de demo cargados — haz clic en Agregar');}
+
+// ─── UPGRADE / PAYPAL ─────────────────────────────────────────────────────────
+function openUpgrade() {
+  document.getElementById('upgradeModal').classList.add('show');
+  initPayPalButtons();
+}
+
+function closeUpgrade() {
+  document.getElementById('upgradeModal').classList.remove('show');
+}
+
+let paypalInitialized = false;
+
+function initPayPalButtons() {
+  if (paypalInitialized) return;
+  if (typeof paypal === 'undefined') {
+    notify('⚠️ PayPal no cargó. Recarga la página.');
+    return;
+  }
+  paypalInitialized = true;
+
+  paypal.Buttons({
+    style: {
+      layout: 'vertical',
+      color: 'gold',
+      shape: 'rect',
+      label: 'pay'
+    },
+    createOrder: async () => {
+      const r = await fetch('/payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: currentUser.email })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.detail || 'Error al crear orden');
+      return data.order_id;
+    },
+    onApprove: async (data) => {
+      document.getElementById('paypal-button-container').style.display = 'none';
+      document.getElementById('paypal-loading').style.display = 'block';
+      try {
+        const r = await fetch('/payment/capture', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: data.orderID, email: currentUser.email })
+        });
+        const result = await r.json();
+        if (!r.ok) throw new Error(result.detail || 'Error al capturar');
+        // Actualizar UI
+        currentUser.plan = 'pro';
+        document.getElementById('userPlan').textContent = 'PRO';
+        document.getElementById('userPlan').classList.add('pro');
+        document.getElementById('upgradeBtn').style.display = 'none';
+        document.getElementById('paypal-loading').style.display = 'none';
+        document.getElementById('paypal-success').style.display = 'block';
+      } catch(e) {
+        document.getElementById('paypal-loading').style.display = 'none';
+        document.getElementById('paypal-button-container').style.display = 'block';
+        notify('❌ Error: ' + e.message);
+      }
+    },
+    onError: (err) => {
+      notify('❌ Error en el pago. Intenta de nuevo.');
+      console.error(err);
+    },
+    onCancel: () => {
+      notify('⚠️ Pago cancelado.');
+    }
+  }).render('#paypal-button-container');
+}
 
 window.onload=()=>{const imp=document.getElementById('tab-import');const hint=document.createElement('div');hint.style.cssText='text-align:right;margin-bottom:12px;';hint.innerHTML=`<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;imp.insertBefore(hint,imp.firstChild);};
 </script>
