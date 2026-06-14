@@ -1,81 +1,94 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse, FileResponse
-import httpx, os, random
+from pydantic import BaseModel
+import httpx, os, hashlib, secrets
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = FastAPI(title="SorteoApp API")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY")
 
-APP_ID = os.getenv("META_APP_ID")
-APP_SECRET = os.getenv("META_APP_SECRET")
-REDIRECT_URI = os.getenv("META_REDIRECT_URI")
+HEADERS = {
+    "apikey": SUPABASE_KEY,
+    "Authorization": f"Bearer {SUPABASE_KEY}",
+    "Content-Type": "application/json"
+}
+
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+class UserRegister(BaseModel):
+    email: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
 
-@app.get("/auth/login")
-async def login():
-    url = (
-        f"https://www.facebook.com/v19.0/dialog/oauth"
-        f"?client_id={APP_ID}"
-        f"&redirect_uri={REDIRECT_URI}"
-        f"&scope=pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_comments"
-        f"&response_type=code"
-    )
-    return RedirectResponse(url)
+# ── REGISTRO ──────────────────────────────────
+@app.post("/auth/register")
+async def register(user: UserRegister):
+    async with httpx.AsyncClient() as client:
+        # Verificar si ya existe
+        check = await client.get(
+            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}",
+            headers=HEADERS
+        )
+        if check.json():
+            raise HTTPException(400, "Este email ya está registrado")
+        # Crear usuario
+        r = await client.post(
+            f"{SUPABASE_URL}/rest/v1/usuarios",
+            headers={**HEADERS, "Prefer": "return=representation"},
+            json={
+                "email": user.email,
+                "password_hash": hash_password(user.password),
+                "plan": "gratis",
+                "sorteos_mes": 0
+            }
+        )
+        if r.status_code not in [200, 201]:
+            raise HTTPException(500, "Error al crear usuario")
+        return {"ok": True, "mensaje": "Cuenta creada exitosamente"}
 
-@app.get("/auth/callback")
-async def auth_callback(code: str = Query(...)):
+# ── LOGIN ─────────────────────────────────────
+@app.post("/auth/login")
+async def login(user: UserLogin):
     async with httpx.AsyncClient() as client:
         r = await client.get(
-            "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={"client_id": APP_ID, "client_secret": APP_SECRET,
-                    "redirect_uri": REDIRECT_URI, "code": code}
+            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}",
+            headers=HEADERS
         )
-        return r.json()
+        data = r.json()
+        if not data:
+            raise HTTPException(401, "Email o contraseña incorrectos")
+        db_user = data[0]
+        if db_user["password_hash"] != hash_password(user.password):
+            raise HTTPException(401, "Email o contraseña incorrectos")
+        # Token simple
+        token = secrets.token_hex(32)
+        return {
+            "ok": True,
+            "token": token,
+            "email": db_user["email"],
+            "plan": db_user["plan"],
+            "sorteos_mes": db_user["sorteos_mes"]
+        }
 
-@app.get("/fb/comments")
-async def get_fb_comments(post_id: str, page_token: str):
-    comments = []
-    url = f"https://graph.facebook.com/v19.0/{post_id}/comments"
-    params = {"access_token": page_token, "fields": "id,from,message,created_time", "limit": 100}
-    async with httpx.AsyncClient() as client:
-        while url:
-            r = await client.get(url, params=params)
-            data = r.json()
-            comments.extend(data.get("data", []))
-            url = data.get("paging", {}).get("next")
-            params = {}
-    return {"comments": comments, "total": len(comments)}
-
-@app.get("/ig/comments")
-async def get_ig_comments(media_id: str, access_token: str):
-    comments = []
-    url = f"https://graph.facebook.com/v19.0/{media_id}/comments"
-    params = {"access_token": access_token, "fields": "id,username,text,timestamp", "limit": 100}
-    async with httpx.AsyncClient() as client:
-        while url:
-            r = await client.get(url, params=params)
-            data = r.json()
-            comments.extend(data.get("data", []))
-            url = data.get("paging", {}).get("next")
-            params = {}
-    return {"comments": comments, "total": len(comments)}
-
+# ── SORTEO ────────────────────────────────────
 @app.post("/sorteo/run")
 async def run_sorteo(data: dict):
+    import random
     comments = data.get("comments", [])
     config = data.get("config", {})
     if config.get("no_dupes", True):
