@@ -31,7 +31,6 @@
     overflow-x: hidden;
   }
 
-  /* BG Effect */
   body::before {
     content: '';
     position: fixed;
@@ -53,6 +52,172 @@
     z-index: 0;
   }
 
+  /* LOGIN SCREEN */
+  #loginScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .login-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    margin: 20px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .login-logo {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .login-logo .icon { font-size: 40px; display: block; margin-bottom: 10px; }
+  .login-logo h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .login-logo p { color: var(--muted); font-size: 14px; }
+  .login-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .login-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .login-tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .login-tab:not(.active) {
+    background: transparent;
+    color: var(--muted);
+    border: none;
+  }
+  .login-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-input::placeholder { color: var(--muted); }
+  .login-error {
+    color: var(--accent2);
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: none;
+    padding: 8px 12px;
+    background: rgba(250,109,154,0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(250,109,154,0.2);
+  }
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #5e4fe8);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(124,109,250,0.3);
+  }
+  .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,109,250,0.4); }
+  .login-footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 16px;
+  }
+  .login-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,109,250,0.1);
+    border: 1px solid rgba(124,109,250,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 8px;
+  }
+
+  /* USER BAR */
+  #userBar {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    z-index: 100;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  #userBar.show { display: flex; }
+  .user-info { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .user-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: white;
+    font-family: 'Syne', sans-serif;
+  }
+  .user-email { color: var(--text); font-weight: 500; }
+  .user-plan {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(124,109,250,0.15);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .user-plan.pro {
+    background: rgba(245,200,66,0.15);
+    color: #f5c842;
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .logout-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
   .container {
     max-width: 960px;
     margin: 0 auto;
@@ -60,8 +225,8 @@
     position: relative;
     z-index: 1;
   }
+  .container.with-bar { padding-top: 80px; }
 
-  /* HEADER */
   header {
     text-align: center;
     margin-bottom: 48px;
@@ -95,7 +260,6 @@
   }
   .subtitle { color: var(--muted); margin-top: 10px; font-size: 16px; }
 
-  /* TABS */
   .tabs {
     display: flex;
     gap: 8px;
@@ -130,7 +294,6 @@
   }
   .tab:hover:not(.active) { color: var(--text); }
 
-  /* CARDS */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -149,35 +312,13 @@
     align-items: center;
     gap: 8px;
   }
-  .badge {
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-weight: 600;
-  }
+  .badge { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600; }
   .badge-fb { background: rgba(24,119,242,0.15); color: var(--fb); }
   .badge-ig { background: rgba(225,48,108,0.15); color: var(--ig); }
   .badge-neutral { background: rgba(124,109,250,0.15); color: var(--accent); }
 
-  /* SOURCE INPUT */
-  .source-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .source-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
-    padding-top: 10px;
-    min-width: 110px;
-    color: var(--muted);
-  }
+  .source-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; flex-wrap: wrap; }
+  .source-label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; padding-top: 10px; min-width: 110px; color: var(--muted); }
   .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   .dot-fb { background: var(--fb); }
   .dot-ig { background: var(--ig); }
@@ -201,268 +342,125 @@
   textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--muted); }
 
-  /* CONFIG */
-  .config-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 12px;
+  .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .config-item label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .config-item input[type="text"], .config-item input[type="number"], .config-item select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 12px; outline: none; transition: border-color 0.2s;
   }
-  .config-item label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .config-item input[type="text"],
-  .config-item input[type="number"],
-  .config-item select {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    padding: 10px 12px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .config-item input:focus,
-  .config-item select:focus { border-color: var(--accent); }
+  .config-item input:focus, .config-item select:focus { border-color: var(--accent); }
   select option { background: var(--surface2); }
 
-  .toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    color: var(--muted);
-  }
-  .toggle {
-    position: relative;
-    width: 40px; height: 22px;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
+  .toggle-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+  .toggle { position: relative; width: 40px; height: 22px; cursor: pointer; flex-shrink: 0; }
   .toggle input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute;
-    inset: 0;
-    background: var(--border);
-    border-radius: 22px;
-    transition: 0.2s;
-  }
-  .slider:before {
-    content: '';
-    position: absolute;
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: white;
-    left: 3px; top: 3px;
-    transition: 0.2s;
-  }
+  .slider { position: absolute; inset: 0; background: var(--border); border-radius: 22px; transition: 0.2s; }
+  .slider:before { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: white; left: 3px; top: 3px; transition: 0.2s; }
   input:checked + .slider { background: var(--accent); }
   input:checked + .slider:before { transform: translateX(18px); }
 
-  /* BUTTONS */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    border: none;
-    font-family: 'Syne', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), #5e4fe8);
-    color: white;
-    box-shadow: 0 4px 20px rgba(124,109,250,0.3);
-  }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; border: none; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), #5e4fe8); color: white; box-shadow: 0 4px 20px rgba(124,109,250,0.3); }
   .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,109,250,0.4); }
   .btn-primary:active { transform: translateY(0); }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger {
-    background: rgba(250,109,154,0.1);
-    color: var(--accent2);
-    border: 1px solid rgba(250,109,154,0.2);
-  }
+  .btn-danger { background: rgba(250,109,154,0.1); color: var(--accent2); border: 1px solid rgba(250,109,154,0.2); }
   .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 
-  /* COMMENT LIST */
-  .comment-list {
-    max-height: 280px;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--surface2);
-  }
+  .comment-list { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); }
   .comment-list::-webkit-scrollbar { width: 6px; }
   .comment-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
-  .comment-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    transition: background 0.15s;
-  }
+  .comment-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; transition: background 0.15s; }
   .comment-item:last-child { border-bottom: none; }
   .comment-item:hover { background: rgba(255,255,255,0.02); }
-  .comment-avatar {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    flex-shrink: 0;
-    font-family: 'Syne', sans-serif;
-  }
+  .comment-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; font-family: 'Syne', sans-serif; }
   .comment-name { font-weight: 500; color: var(--text); flex: 1; }
   .comment-text { color: var(--muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .comment-src { font-size: 10px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
   .comment-count { color: var(--accent); font-size: 11px; font-weight: 700; flex-shrink: 0; }
 
-  .stats-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 14px;
-    flex-wrap: wrap;
-  }
-  .stat-pill {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    color: var(--muted);
-  }
+  .stats-row { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stat-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 12px; color: var(--muted); }
   .stat-pill strong { color: var(--text); }
 
-  /* SPIN ANIMATION */
-  .spin-container {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    animation: fadeUp 0.3s ease both;
-  }
+  .spin-container { display: none; text-align: center; padding: 40px; animation: fadeUp 0.3s ease both; }
   .spin-container.active { display: block; }
-  .drum {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(20px, 4vw, 32px);
-    font-weight: 800;
-    color: var(--accent);
-    min-height: 50px;
-    animation: drumroll 0.05s infinite;
-    letter-spacing: 1px;
-  }
-  @keyframes drumroll {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
-  .drum.settled {
-    animation: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-size: clamp(26px, 5vw, 42px);
-  }
+  .drum { font-family: 'Syne', sans-serif; font-size: clamp(20px, 4vw, 32px); font-weight: 800; color: var(--accent); min-height: 50px; animation: drumroll 0.05s infinite; letter-spacing: 1px; }
+  @keyframes drumroll { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .drum.settled { animation: none; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: clamp(26px, 5vw, 42px); }
   .spin-label { color: var(--muted); font-size: 13px; margin-top: 8px; }
 
-  /* WINNER CARD */
   #winnerSection { display: none; }
   #winnerSection.show { display: block; animation: fadeUp 0.5s ease both; }
+  .winner-card-wrap { display: flex; justify-content: center; margin: 20px 0; }
+  #winnerCanvas { border-radius: 16px; box-shadow: 0 20px 60px rgba(200,160,0,0.3); max-width: 100%; width: 100%; }
 
-  .winner-card-wrap {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-  }
-
-  #winnerCanvas {
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(200,160,0,0.3);
-    max-width: 100%;
-    width: 100%;
-  }
-
-  /* EMPTY STATE */
-  .empty {
-    text-align: center;
-    padding: 40px;
-    color: var(--muted);
-    font-size: 14px;
-  }
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
   .empty .icon { font-size: 36px; margin-bottom: 10px; }
 
-  /* ANIMATIONS */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* SECTION PANEL */
   .section { display: none; }
   .section.active { display: block; }
 
-  /* NOTIFICATION */
-  .notif {
-    position: fixed;
-    bottom: 24px; right: 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 18px;
-    font-size: 13px;
-    color: var(--text);
-    z-index: 999;
-    animation: slideIn 0.3s ease;
-    max-width: 280px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  }
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+  .notif { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; font-size: 13px; color: var(--text); z-index: 9998; animation: slideIn 0.3s ease; max-width: 280px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-  /* Responsive */
-  @media (max-width: 600px) {
-    .source-row { flex-direction: column; }
-    .source-label { min-width: unset; padding-top: 0; }
-  }
+  @media (max-width: 600px) { .source-row { flex-direction: column; } .source-label { min-width: unset; padding-top: 0; } }
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PANTALLA DE LOGIN                                       -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="icon">🎲</span>
+      <h2>SorteoApp</h2>
+      <p>Inicia sesión o crea tu cuenta gratis</p>
+    </div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="showAuthTab('login')">Iniciar sesión</button>
+      <button class="login-tab" onclick="showAuthTab('register')">Registrarse</button>
+    </div>
+    <input class="login-input" id="authEmail" type="email" placeholder="tu@email.com">
+    <input class="login-input" id="authPassword" type="password" placeholder="Contraseña">
+    <div class="login-error" id="authError"></div>
+    <button class="login-btn" onclick="submitAuth()" id="authBtn">Entrar</button>
+    <div class="login-footer">
+      Plan gratis incluye
+      <div class="login-plan-badge">🎉 3 sorteos por mes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- BARRA DE USUARIO (aparece tras login)                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="userBar">
+  <div class="user-info">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <span class="user-email" id="userEmail"></span>
+    <span class="user-plan" id="userPlan">GRATIS</span>
+  </div>
+  <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- APP PRINCIPAL                                           -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="container" id="mainApp" style="display:none;">
   <header>
     <div class="logo-mark">🎉 SorteoApp</div>
     <h1>Sorteos <span>Multi-Red</span></h1>
     <p class="subtitle">Pega comentarios de Facebook, Instagram o ambos — sortea en segundos</p>
   </header>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('import')">📋 Importar</button>
     <button class="tab" onclick="switchTab('config')">⚙️ Configurar</button>
@@ -471,7 +469,6 @@
 
   <!-- TAB: IMPORT -->
   <div id="tab-import" class="section active">
-
     <div class="card">
       <div class="card-title">
         <span class="dot dot-fb"></span> Facebook
@@ -494,7 +491,6 @@
       <button class="btn btn-secondary btn-sm" onclick="parseComments('ig')">➕ Agregar al sorteo</button>
     </div>
 
-    <!-- COMMENT POOL -->
     <div class="card" id="poolCard">
       <div class="card-title">
         👥 Participantes
@@ -513,7 +509,6 @@
         <button class="btn btn-danger btn-sm" onclick="clearPool()">🗑 Limpiar todo</button>
       </div>
     </div>
-
   </div>
 
   <!-- TAB: CONFIG -->
@@ -583,20 +578,15 @@
 
   <!-- TAB: SORTEO -->
   <div id="tab-sorteo" class="section">
-
     <div class="card" id="preSorteo">
       <div class="card-title">🎲 Listo para sortear</div>
       <p style="color:var(--muted); font-size:14px; margin-bottom:20px;" id="readySummary">Agrega participantes primero.</p>
-      <button class="btn btn-primary" onclick="startDraw()" id="drawBtn">
-        🎰 ¡Girar la Ruleta!
-      </button>
+      <button class="btn btn-primary" onclick="startDraw()" id="drawBtn">🎰 ¡Girar la Ruleta!</button>
     </div>
-
     <div class="spin-container" id="spinBox">
       <p class="spin-label">🥁 Sorteando entre los participantes...</p>
       <div class="drum" id="drumText">—</div>
     </div>
-
     <div id="winnerSection">
       <div class="card">
         <div class="card-title">🏆 Ganador(es)</div>
@@ -611,13 +601,103 @@
         <button class="btn btn-secondary" onclick="copyWinnerText()">📋 Copiar Nombre</button>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
+// ─── AUTH ─────────────────────────────────────────────────────────────────────
+let authMode = 'login';
+let currentUser = null;
+
+function showAuthTab(mode) {
+  authMode = mode;
+  document.querySelectorAll('.login-tab').forEach((t,i) => {
+    const isActive = (i===0 && mode==='login') || (i===1 && mode==='register');
+    t.classList.toggle('active', isActive);
+  });
+  document.getElementById('authBtn').textContent = mode === 'login' ? 'Entrar' : 'Crear cuenta';
+  document.getElementById('authError').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl = document.getElementById('authError');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Por favor llena todos los campos';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'La contraseña debe tener al menos 6 caracteres';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('authBtn');
+  btn.textContent = '⏳ Procesando...';
+  btn.disabled = true;
+
+  const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+  try {
+    const r = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      errEl.textContent = data.detail || 'Error al procesar';
+      errEl.style.display = 'block';
+      btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta';
+      btn.disabled = false;
+      return;
+    }
+    // Login exitoso
+    currentUser = data;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('userBar').classList.add('show');
+    document.getElementById('mainApp').style.display = 'block';
+    document.getElementById('mainApp').classList.add('with-bar');
+    // Mostrar info usuario
+    const initials = email.slice(0,2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userEmail').textContent = email;
+    document.getElementById('userPlan').textContent = (data.plan || 'gratis').toUpperCase();
+    if (data.plan === 'pro') document.getElementById('userPlan').classList.add('pro');
+    if (authMode === 'register') notify('🎉 ¡Cuenta creada! Bienvenido a SorteoApp');
+    else notify('👋 Bienvenido de vuelta, ' + email.split('@')[0]);
+  } catch(e) {
+    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+    errEl.style.display = 'block';
+    btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta';
+    btn.disabled = false;
+  }
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('userBar').classList.remove('show');
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authEmail').value = '';
+  document.getElementById('authPassword').value = '';
+  notify('👋 Sesión cerrada');
+}
+
+// Permitir Enter en los inputs
+document.addEventListener('DOMContentLoaded', () => {
+  ['authEmail','authPassword'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitAuth();
+    });
+  });
+});
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
-let participants = []; // {name, source, text, color}
+let participants = [];
 let lastWinners = [];
 let logoDataURL = null;
 
@@ -646,9 +726,7 @@ function removeLogo() {
 
 const COLORS_FB = ['#1877f2','#4293fb','#74aaff'];
 const COLORS_IG = ['#e1306c','#fd5e7c','#c13584','#f56040'];
-const COLORS_N  = ['#7c6dfa','#5e4fe8','#a98dff'];
 
-// ─── TABS ─────────────────────────────────────────────────────────────────────
 function switchTab(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -658,55 +736,39 @@ function switchTab(id) {
   if (id === 'sorteo') updateReadySummary();
 }
 
-// ─── PARSE COMMENTS ───────────────────────────────────────────────────────────
 function parseComments(source) {
   const el = document.getElementById(source + 'Text');
   const raw = el.value.trim();
   if (!raw) { notify('Pega comentarios primero'); return; }
-
   const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 1);
   let added = 0;
-
   lines.forEach(line => {
-    // Extract name: patterns like "Name:" or "@handle" or just first word
     let name = '', text = line;
     const colonMatch = line.match(/^(.+?):\s*(.*)$/);
     const atMatch = line.match(/^(@[\w.]+)\s*(.*)/);
     if (colonMatch) { name = colonMatch[1].trim(); text = colonMatch[2].trim(); }
     else if (atMatch) { name = atMatch[1].trim(); text = atMatch[2].trim(); }
-    else {
-      const words = line.split(' ');
-      name = words[0];
-      text = words.slice(1).join(' ');
-    }
+    else { const words = line.split(' '); name = words[0]; text = words.slice(1).join(' '); }
     if (!name) return;
     const colors = source === 'fb' ? COLORS_FB : COLORS_IG;
     const color = colors[Math.floor(Math.random() * colors.length)];
     participants.push({ name, source, text, color });
     added++;
   });
-
   el.value = '';
   renderPool();
   notify(`✅ ${added} comentario(s) de ${source.toUpperCase()} agregados`);
 }
 
-// ─── RENDER POOL ──────────────────────────────────────────────────────────────
 function renderPool() {
   const pool = document.getElementById('commentPool');
   const cfg = getConfig();
   const visible = getFiltered();
-
   document.getElementById('poolCount').textContent = visible.length + ' total';
   document.getElementById('countFB').textContent = participants.filter(p=>p.source==='fb').length;
   document.getElementById('countIG').textContent = participants.filter(p=>p.source==='ig').length;
   document.getElementById('countUnique').textContent = [...new Set(participants.map(p=>p.name))].length;
-
-  if (participants.length === 0) {
-    pool.innerHTML = '<div class="empty"><div class="icon">💬</div>Sin participantes aún</div>';
-    return;
-  }
-
+  if (participants.length === 0) { pool.innerHTML = '<div class="empty"><div class="icon">💬</div>Sin participantes aún</div>'; return; }
   const display = cfg.noDupes ? [...new Map(participants.map(p=>[p.name,p])).values()] : participants;
   pool.innerHTML = display.slice(0,200).map(p => {
     const initials = p.name.replace('@','').slice(0,2).toUpperCase();
@@ -730,7 +792,6 @@ function clearPool() {
   notify('🗑 Lista limpiada');
 }
 
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
 function getConfig() {
   return {
     title: document.getElementById('cfgTitle').value || 'Gran Sorteo',
@@ -751,61 +812,46 @@ function getFiltered() {
   let pool = [...participants];
   if (cfg.requireAt) pool = pool.filter(p => p.text.includes('@') || p.name.startsWith('@'));
   if (cfg.requireWord && cfg.keyword) pool = pool.filter(p => (p.text + p.name).toLowerCase().includes(cfg.keyword));
-  if (cfg.noDupes) {
-    const seen = new Set();
-    pool = pool.filter(p => { if(seen.has(p.name)) return false; seen.add(p.name); return true; });
-  }
+  if (cfg.noDupes) { const seen = new Set(); pool = pool.filter(p => { if(seen.has(p.name)) return false; seen.add(p.name); return true; }); }
   return pool;
 }
 
 function updateReadySummary() {
   const filtered = getFiltered();
   const cfg = getConfig();
-  document.getElementById('readySummary').textContent =
-    `${filtered.length} participante(s) elegibles — se seleccionará ${cfg.winners} ganador(es)`;
+  document.getElementById('readySummary').textContent = `${filtered.length} participante(s) elegibles — se seleccionará ${cfg.winners} ganador(es)`;
 }
 
-// ─── DRAW ─────────────────────────────────────────────────────────────────────
 function startDraw() {
   const filtered = getFiltered();
   const cfg = getConfig();
   if (filtered.length === 0) { notify('⚠️ No hay participantes para sortear'); return; }
   if (filtered.length < cfg.winners) { notify('⚠️ Menos participantes que ganadores requeridos'); return; }
-
   document.getElementById('preSorteo').style.display = 'none';
   document.getElementById('winnerSection').classList.remove('show');
   const spinBox = document.getElementById('spinBox');
   spinBox.classList.add('active');
-
   const drum = document.getElementById('drumText');
   drum.classList.remove('settled');
-
   let frame = 0;
-  const duration = 120; // frames
   const interval = setInterval(() => {
     const rnd = filtered[Math.floor(Math.random() * filtered.length)];
     drum.textContent = rnd.name;
     frame++;
-    if (frame >= duration) {
+    if (frame >= 120) {
       clearInterval(interval);
-      // Pick winners
       const shuffled = [...filtered].sort(() => Math.random() - 0.5);
       lastWinners = shuffled.slice(0, cfg.winners);
       drum.textContent = lastWinners[0].name;
       drum.classList.add('settled');
-      setTimeout(() => {
-        spinBox.classList.remove('active');
-        showWinners();
-      }, 800);
+      setTimeout(() => { spinBox.classList.remove('active'); showWinners(); }, 800);
     }
   }, 35);
 }
 
 function showWinners() {
-  const cfg = getConfig();
   const section = document.getElementById('winnerSection');
   section.classList.add('show');
-
   const list = document.getElementById('winnersList');
   list.innerHTML = lastWinners.map((w,i) => `
     <div style="display:flex;align-items:center;gap:12px;padding:12px 0;${i<lastWinners.length-1?'border-bottom:1px solid var(--border)':''}">
@@ -816,7 +862,6 @@ function showWinners() {
       </div>
     </div>
   `).join('');
-
   drawWinnerCard();
 }
 
@@ -832,7 +877,7 @@ function copyWinnerText() {
   navigator.clipboard.writeText(names).then(() => notify('✅ Nombre(s) copiado(s)'));
 }
 
-// ─── WINNER CARD CANVAS ───────────────────────────────────────────────────────
+// ─── WINNER CARD ──────────────────────────────────────────────────────────────
 const THEMES = {
   gold:   { accent:'#f5c842', accent2:'#ffaa00', glow:'rgba(245,200,66,0.5)',  glowR:'rgba(255,120,0,0.3)'  },
   purple: { accent:'#a78bfa', accent2:'#7c6dfa', glow:'rgba(167,139,250,0.4)', glowR:'rgba(124,109,250,0.3)'},
@@ -841,8 +886,6 @@ const THEMES = {
   green:  { accent:'#3dffa0', accent2:'#00d462', glow:'rgba(61,255,160,0.4)',  glowR:'rgba(0,212,98,0.3)'  },
 };
 
-function hexToRgb(hex){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return{r,g,b};}
-
 function drawWinnerCard() {
   const cfg = getConfig();
   const t = THEMES[cfg.theme] || THEMES.gold;
@@ -850,355 +893,44 @@ function drawWinnerCard() {
   const ctx = canvas.getContext('2d');
   const W = 900, H = 560;
   canvas.width = W; canvas.height = H;
-
-  // ── FONDO negro profundo
-  ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0,0,W,H);
-
-  // ── Hexágonos decorativos fondo (derecha)
-  ctx.save();
-  ctx.globalAlpha = 0.07;
-  ctx.strokeStyle = t.accent;
-  ctx.lineWidth = 1;
-  for(let row=0;row<6;row++){for(let col=0;col<5;col++){
-    const hx=W-220+col*52+(row%2)*26, hy=30+row*46;
-    ctx.beginPath();
-    for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;ctx.lineTo(hx+20*Math.cos(a),hy+20*Math.sin(a));}
-    ctx.closePath(); ctx.stroke();
-  }}
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,W,H);
+  ctx.save(); ctx.globalAlpha=0.07; ctx.strokeStyle=t.accent; ctx.lineWidth=1;
+  for(let row=0;row<6;row++){for(let col=0;col<5;col++){const hx=W-220+col*52+(row%2)*26,hy=30+row*46;ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/3*i-Math.PI/6;ctx.lineTo(hx+20*Math.cos(a),hy+20*Math.sin(a));}ctx.closePath();ctx.stroke();}}
   ctx.restore();
-
-  // ── Glow izquierda (dorado)
-  const gl=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,320);
-  gl.addColorStop(0,t.glow); gl.addColorStop(1,'transparent');
-  ctx.fillStyle=gl; ctx.fillRect(0,0,W,H);
-
-  // ── Glow derecha (naranja/secundario)
-  const gr=ctx.createRadialGradient(W,H*0.5,0,W,H*0.5,260);
-  gr.addColorStop(0,t.glowR); gr.addColorStop(1,'transparent');
-  ctx.fillStyle=gr; ctx.fillRect(0,0,W,H);
-
-  // ── Borde dorado exterior
-  ctx.save();
-  const bgrad=ctx.createLinearGradient(0,0,W,H);
-  bgrad.addColorStop(0,t.accent); bgrad.addColorStop(0.5,'#fff8e0'); bgrad.addColorStop(1,t.accent2);
-  ctx.strokeStyle=bgrad; ctx.lineWidth=3; ctx.globalAlpha=0.9;
-  roundRect(ctx,4,4,W-8,H-8,18); ctx.stroke();
-  ctx.restore();
-
-  // ── Borde interior delgado
-  ctx.save();
-  ctx.strokeStyle=t.accent; ctx.lineWidth=1; ctx.globalAlpha=0.25;
-  roundRect(ctx,12,12,W-24,H-24,14); ctx.stroke();
-  ctx.restore();
-
-  // ── Franja diagonal izquierda (efecto decorativo)
-  ctx.save();
-  ctx.globalAlpha=0.06;
-  const dg=ctx.createLinearGradient(0,0,200,H);
-  dg.addColorStop(0,t.accent); dg.addColorStop(1,'transparent');
-  ctx.fillStyle=dg;
-  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(180,0); ctx.lineTo(80,H); ctx.lineTo(0,H); ctx.fill();
-  ctx.restore();
-
-  // ── Confeti / partículas doradas
-  const confPos=[[80,40],[160,25],[820,35],[860,80],[760,20],[700,55],[200,520],[850,490],[100,490],[780,510],[400,30],[500,520]];
-  confPos.forEach(([cx,cy],i)=>{
-    ctx.save();
-    ctx.fillStyle = i%3===0 ? t.accent : i%3===1 ? '#fff' : t.accent2;
-    ctx.globalAlpha=0.5+Math.random()*0.3;
-    ctx.translate(cx,cy); ctx.rotate(i*0.7);
-    ctx.fillRect(-4,-2,8,4);
-    ctx.restore();
-  });
-
-  // ────────────────────────────────────────────────
-  // ZONA SUPERIOR: Logo + Sorteo Oficial + Sello
-  // ────────────────────────────────────────────────
-
-  // Sello "SORTEO VERIFICADO" — esquina superior derecha
-  ctx.save();
-  ctx.translate(W-80, 78);
-  // Círculo exterior
-  const sg=ctx.createRadialGradient(0,0,20,0,0,55);
-  sg.addColorStop(0,'#2a2000'); sg.addColorStop(1,'#1a1000');
-  ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(0,0,55,0,Math.PI*2); ctx.fill();
-  // Borde dentado (estrella de 12 pts)
-  ctx.beginPath();
-  for(let i=0;i<24;i++){const a=Math.PI/12*i,r=i%2===0?60:53;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}
-  ctx.closePath();
-  const sdg=ctx.createLinearGradient(-60,-60,60,60);
-  sdg.addColorStop(0,t.accent); sdg.addColorStop(1,t.accent2);
-  ctx.fillStyle=sdg; ctx.globalAlpha=0.9; ctx.fill();
-  // Interior del sello
-  ctx.globalAlpha=1;
-  ctx.fillStyle='#1a1000'; ctx.beginPath(); ctx.arc(0,0,48,0,Math.PI*2); ctx.fill();
-  // Check ✓
-  ctx.strokeStyle=t.accent; ctx.lineWidth=5; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(-14,2); ctx.lineTo(-4,14); ctx.lineTo(16,-12); ctx.stroke();
-  // Texto circular
-  ctx.fillStyle=t.accent; ctx.font='bold 8px Arial'; ctx.textAlign='center';
-  ctx.fillText('SORTEO', 0, -30);
-  ctx.fillText('VERIFICADO', 0, 38);
-  ctx.restore();
-
-  // "SORTEO OFICIAL" texto + escudo
-  ctx.textAlign='center';
-  ctx.fillStyle=t.accent; ctx.font='bold 11px Arial'; ctx.letterSpacing='2px';
-  ctx.fillText('✦  SORTEO OFICIAL  ✦', W/2+60, 42);
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='12px Arial';
-  ctx.fillText('Realizado con SorteoApp.pro', W/2+60, 62);
-
-  // ── Línea separadora dorada superior
-  const lsg=ctx.createLinearGradient(30,0,W-30,0);
-  lsg.addColorStop(0,'transparent'); lsg.addColorStop(0.2,t.accent); lsg.addColorStop(0.8,t.accent); lsg.addColorStop(1,'transparent');
-  ctx.strokeStyle=lsg; ctx.lineWidth=1; ctx.globalAlpha=0.4;
-  ctx.beginPath(); ctx.moveTo(30,78); ctx.lineTo(W-30,78); ctx.stroke();
-  ctx.globalAlpha=1;
-
-  // ────────────────────────────────────────────────
-  // ZONA CENTRAL: ¡GANADOR! + Nombre
-  // ────────────────────────────────────────────────
-  ctx.textAlign='center';
-
-  // "¡GANADOR!" label
-  ctx.font='bold 26px Syne, Arial';
-  ctx.fillStyle=t.accent;
-  ctx.shadowColor=t.accent; ctx.shadowBlur=18;
-  ctx.fillText('¡GANADOR!', W/2, 128);
-  ctx.shadowBlur=0;
-
-  // Nombre del ganador — tamaño adaptativo para que no desborde
-  const winner = lastWinners[0]?.name || 'Ganador';
-  const winnerSrc = lastWinners[0]?.source || '';
-  const nameLen = winner.length;
-  const fontSize = nameLen > 18 ? 44 : nameLen > 14 ? 54 : nameLen > 10 ? 66 : 80;
-  ctx.font = `bold ${fontSize}px Syne, Arial`;
-
-  // Medir ancho real y escalar si aún desborda
-  ctx.save();
-  let measuredW = ctx.measureText(truncate(winner, 22)).width;
-  const maxNameW = W - 180;
-  if (measuredW > maxNameW) {
-    const scale = maxNameW / measuredW;
-    ctx.setTransform(scale, 0, 0, 1, W/2 * (1 - scale), 0);
-  }
-  ctx.shadowColor='rgba(255,255,255,0.6)'; ctx.shadowBlur=30;
-  ctx.fillStyle='#ffffff';
-  ctx.fillText(truncate(winner, 22), W/2, 200);
-  ctx.shadowBlur=0;
-  ctx.restore();
-
-  // Ramas de laurel — SIEMPRE a los lados, fijas
-  drawLaurel(ctx, 68, 185, t.accent, false);
-  drawLaurel(ctx, W-68, 185, t.accent, true);
-
-  // Badge de red social (FB / IG) debajo del nombre
-  if (winnerSrc) {
-    const isFB = winnerSrc === 'fb';
-    const srcColor = isFB ? '#1877f2' : '#e1306c';
-    const srcLabel = isFB ? '📘 Facebook' : '📷 Instagram';
-    const bw = 130, bh = 26, bx = W/2 - bw/2, by = 210;
-    ctx.save();
-    ctx.fillStyle = isFB ? 'rgba(24,119,242,0.15)' : 'rgba(225,48,108,0.15)';
-    ctx.strokeStyle = srcColor; ctx.lineWidth = 1;
-    roundRect(ctx, bx, by, bw, bh, 13); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = srcColor; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(srcLabel, W/2, by + 17);
-    ctx.restore();
-  }
-
-  if(lastWinners.length > 1){
-    ctx.font='bold 30px Syne, Arial';
-    lastWinners.slice(1).forEach((w,i)=>{
-      ctx.fillStyle='rgba(255,255,255,0.8)';
-      ctx.fillText(truncate(w.name,22), W/2, 248+i*38);
-    });
-  }
-
-  // ────────────────────────────────────────────────
-  // ZONA PREMIO
-  // ────────────────────────────────────────────────
-  const pY = 258;
-  // Fondo pill del premio
-  ctx.save();
-  ctx.fillStyle='rgba(20,14,0,0.7)';
-  ctx.strokeStyle=t.accent; ctx.lineWidth=1.5;
-  roundRect(ctx, 60, pY, W-120, 68, 12);
-  ctx.fill(); ctx.stroke();
-  ctx.restore();
-
-  // Líneas decorativas a los lados del label PREMIO
-  ctx.fillStyle=t.accent; ctx.font='bold 11px Arial'; ctx.textAlign='center';
-  ctx.fillText('— PREMIO —', W/2, pY+22);
-  ctx.fillStyle='#ffffff'; ctx.font='bold 28px Syne, Arial';
-  ctx.fillText(cfg.prize.toUpperCase(), W/2, pY+56);
-
-  // ── Línea separadora inferior
-  ctx.strokeStyle=lsg; ctx.lineWidth=1; ctx.globalAlpha=0.3;
-  ctx.beginPath(); ctx.moveTo(30,356); ctx.lineTo(W-30,356); ctx.stroke();
-  ctx.globalAlpha=1;
-
-  // ────────────────────────────────────────────────
-  // ZONA INFERIOR: 3 bloques de info + barra verde
-  // ────────────────────────────────────────────────
-  const infoY = 375;
-  const blocks = [
-    { icon:'📅', label:'FECHA DEL SORTEO', val: new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) },
-    { icon:'👥', label:'SORTEO REALIZADO EN', val:'SorteoApp.pro' },
-    { icon:'🔒', label:'ID DEL SORTEO', val:'#SRT-'+Date.now().toString().slice(-8) },
-  ];
-  const bw=(W-80)/3, bpad=8;
-  blocks.forEach((b,i)=>{
-    const bx=40+i*(bw+bpad);
-    // Fondo
-    ctx.save();
-    ctx.fillStyle='rgba(255,255,255,0.04)';
-    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
-    roundRect(ctx,bx,infoY,bw,62,8); ctx.fill(); ctx.stroke();
-    ctx.restore();
-    // Icono
-    ctx.font='16px serif'; ctx.textAlign='left';
-    ctx.fillText(b.icon, bx+10, infoY+22);
-    // Label
-    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='bold 9px Arial';
-    ctx.fillText(b.label, bx+34, infoY+20);
-    // Valor
-    ctx.fillStyle='#ffffff'; ctx.font='bold 13px Syne, Arial';
-    ctx.fillText(b.val, bx+34, infoY+40);
-  });
-
-  // ── Barra inferior verde "SORTEO 100% VÁLIDO"
-  const barY = H-58;
-  ctx.save();
-  ctx.fillStyle='rgba(0,40,10,0.95)';
-  ctx.strokeStyle='#00c853'; ctx.lineWidth=1.5;
-  roundRect(ctx,40,barY,W-80,42,10); ctx.fill(); ctx.stroke();
-  ctx.restore();
-  // Escudo check
-  ctx.font='18px serif'; ctx.textAlign='left';
-  ctx.fillText('✅', 56, barY+28);
-  ctx.fillStyle='#00e676'; ctx.font='bold 13px Syne, Arial';
-  ctx.fillText('SORTEO 100% VÁLIDO', 86, barY+20);
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='11px Arial';
-  ctx.fillText('Transparente  •  Seguro  •  Verificado', 86, barY+36);
-  // Derecha
-  ctx.textAlign='right';
-  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='10px Arial';
-  ctx.fillText('VERIFICA EN:', W-56, barY+20);
-  ctx.fillStyle='#00e676'; ctx.font='bold 11px Arial';
-  ctx.fillText('sorteoapp.pro/verificar', W-56, barY+36);
-
-  // ────────────────────────────────────────────────
-  // LOGO — esquina superior izquierda
-  // ────────────────────────────────────────────────
-  if (cfg.logo) {
-    const img = new Image();
-    img.onload = () => {
-      const maxW=160, maxH=72;
-      let lw=(img.width/img.height)*maxH, lh=maxH;
-      if(lw>maxW){lw=maxW; lh=(img.height/img.width)*maxW;}
-      const lx=28, ly=12;
-      // Fondo pill negro
-      ctx.save();
-      ctx.fillStyle='rgba(0,0,0,0.75)';
-      ctx.strokeStyle=t.accent; ctx.lineWidth=1.5;
-      roundRect(ctx,lx-8,ly-6,lw+16,lh+12,10); ctx.fill(); ctx.stroke();
-      ctx.globalAlpha=0.95;
-      ctx.drawImage(img,lx,ly,lw,lh);
-      ctx.restore();
-    };
-    img.src=cfg.logo;
-  } else {
-    // Texto marca si no hay logo
-    ctx.textAlign='left';
-    ctx.fillStyle=t.accent; ctx.font='bold 15px Syne, Arial';
-    ctx.fillText(cfg.brand.toUpperCase(), 36, 48);
-  }
+  const gl=ctx.createRadialGradient(0,H*0.5,0,0,H*0.5,320);gl.addColorStop(0,t.glow);gl.addColorStop(1,'transparent');ctx.fillStyle=gl;ctx.fillRect(0,0,W,H);
+  const gr=ctx.createRadialGradient(W,H*0.5,0,W,H*0.5,260);gr.addColorStop(0,t.glowR);gr.addColorStop(1,'transparent');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  ctx.save();const bgrad=ctx.createLinearGradient(0,0,W,H);bgrad.addColorStop(0,t.accent);bgrad.addColorStop(0.5,'#fff8e0');bgrad.addColorStop(1,t.accent2);ctx.strokeStyle=bgrad;ctx.lineWidth=3;ctx.globalAlpha=0.9;roundRect(ctx,4,4,W-8,H-8,18);ctx.stroke();ctx.restore();
+  ctx.save();ctx.strokeStyle=t.accent;ctx.lineWidth=1;ctx.globalAlpha=0.25;roundRect(ctx,12,12,W-24,H-24,14);ctx.stroke();ctx.restore();
+  ctx.save();ctx.globalAlpha=0.06;const dg=ctx.createLinearGradient(0,0,200,H);dg.addColorStop(0,t.accent);dg.addColorStop(1,'transparent');ctx.fillStyle=dg;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(180,0);ctx.lineTo(80,H);ctx.lineTo(0,H);ctx.fill();ctx.restore();
+  [[80,40],[160,25],[820,35],[860,80],[760,20],[700,55],[200,520],[850,490],[100,490],[780,510],[400,30],[500,520]].forEach(([cx,cy],i)=>{ctx.save();ctx.fillStyle=i%3===0?t.accent:i%3===1?'#fff':t.accent2;ctx.globalAlpha=0.5+Math.random()*0.3;ctx.translate(cx,cy);ctx.rotate(i*0.7);ctx.fillRect(-4,-2,8,4);ctx.restore();});
+  ctx.save();ctx.translate(W-80,78);const sg=ctx.createRadialGradient(0,0,20,0,0,55);sg.addColorStop(0,'#2a2000');sg.addColorStop(1,'#1a1000');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(0,0,55,0,Math.PI*2);ctx.fill();ctx.beginPath();for(let i=0;i<24;i++){const a=Math.PI/12*i,r=i%2===0?60:53;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);}ctx.closePath();const sdg=ctx.createLinearGradient(-60,-60,60,60);sdg.addColorStop(0,t.accent);sdg.addColorStop(1,t.accent2);ctx.fillStyle=sdg;ctx.globalAlpha=0.9;ctx.fill();ctx.globalAlpha=1;ctx.fillStyle='#1a1000';ctx.beginPath();ctx.arc(0,0,48,0,Math.PI*2);ctx.fill();ctx.strokeStyle=t.accent;ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-14,2);ctx.lineTo(-4,14);ctx.lineTo(16,-12);ctx.stroke();ctx.fillStyle=t.accent;ctx.font='bold 8px Arial';ctx.textAlign='center';ctx.fillText('SORTEO',0,-30);ctx.fillText('VERIFICADO',0,38);ctx.restore();
+  ctx.textAlign='center';ctx.fillStyle=t.accent;ctx.font='bold 11px Arial';ctx.fillText('✦  SORTEO OFICIAL  ✦',W/2+60,42);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='12px Arial';ctx.fillText('Realizado con SorteoApp.pro',W/2+60,62);
+  const lsg=ctx.createLinearGradient(30,0,W-30,0);lsg.addColorStop(0,'transparent');lsg.addColorStop(0.2,t.accent);lsg.addColorStop(0.8,t.accent);lsg.addColorStop(1,'transparent');ctx.strokeStyle=lsg;ctx.lineWidth=1;ctx.globalAlpha=0.4;ctx.beginPath();ctx.moveTo(30,78);ctx.lineTo(W-30,78);ctx.stroke();ctx.globalAlpha=1;
+  ctx.textAlign='center';ctx.font='bold 26px Syne, Arial';ctx.fillStyle=t.accent;ctx.shadowColor=t.accent;ctx.shadowBlur=18;ctx.fillText('¡GANADOR!',W/2,128);ctx.shadowBlur=0;
+  const winner=lastWinners[0]?.name||'Ganador';const winnerSrc=lastWinners[0]?.source||'';const nameLen=winner.length;const fontSize=nameLen>18?44:nameLen>14?54:nameLen>10?66:80;ctx.font=`bold ${fontSize}px Syne, Arial`;ctx.save();let measuredW=ctx.measureText(truncate(winner,22)).width;const maxNameW=W-180;if(measuredW>maxNameW){const scale=maxNameW/measuredW;ctx.setTransform(scale,0,0,1,W/2*(1-scale),0);}ctx.shadowColor='rgba(255,255,255,0.6)';ctx.shadowBlur=30;ctx.fillStyle='#ffffff';ctx.fillText(truncate(winner,22),W/2,200);ctx.shadowBlur=0;ctx.restore();
+  drawLaurel(ctx,68,185,t.accent,false);drawLaurel(ctx,W-68,185,t.accent,true);
+  if(winnerSrc){const isFB=winnerSrc==='fb';const srcColor=isFB?'#1877f2':'#e1306c';const srcLabel=isFB?'📘 Facebook':'📷 Instagram';const bw=130,bh=26,bx=W/2-bw/2,by=210;ctx.save();ctx.fillStyle=isFB?'rgba(24,119,242,0.15)':'rgba(225,48,108,0.15)';ctx.strokeStyle=srcColor;ctx.lineWidth=1;roundRect(ctx,bx,by,bw,bh,13);ctx.fill();ctx.stroke();ctx.fillStyle=srcColor;ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText(srcLabel,W/2,by+17);ctx.restore();}
+  if(lastWinners.length>1){ctx.font='bold 30px Syne, Arial';lastWinners.slice(1).forEach((w,i)=>{ctx.fillStyle='rgba(255,255,255,0.8)';ctx.fillText(truncate(w.name,22),W/2,248+i*38);});}
+  const pY=258;ctx.save();ctx.fillStyle='rgba(20,14,0,0.7)';ctx.strokeStyle=t.accent;ctx.lineWidth=1.5;roundRect(ctx,60,pY,W-120,68,12);ctx.fill();ctx.stroke();ctx.restore();ctx.fillStyle=t.accent;ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('— PREMIO —',W/2,pY+22);ctx.fillStyle='#ffffff';ctx.font='bold 28px Syne, Arial';ctx.fillText(cfg.prize.toUpperCase(),W/2,pY+56);
+  ctx.strokeStyle=lsg;ctx.lineWidth=1;ctx.globalAlpha=0.3;ctx.beginPath();ctx.moveTo(30,356);ctx.lineTo(W-30,356);ctx.stroke();ctx.globalAlpha=1;
+  const infoY=375;const blocks=[{icon:'📅',label:'FECHA DEL SORTEO',val:new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'})},{icon:'👥',label:'SORTEO REALIZADO EN',val:'SorteoApp.pro'},{icon:'🔒',label:'ID DEL SORTEO',val:'#SRT-'+Date.now().toString().slice(-8)}];const bww=(W-80)/3,bpad=8;blocks.forEach((b,i)=>{const bx=40+i*(bww+bpad);ctx.save();ctx.fillStyle='rgba(255,255,255,0.04)';ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;roundRect(ctx,bx,infoY,bww,62,8);ctx.fill();ctx.stroke();ctx.restore();ctx.font='16px serif';ctx.textAlign='left';ctx.fillText(b.icon,bx+10,infoY+22);ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='bold 9px Arial';ctx.fillText(b.label,bx+34,infoY+20);ctx.fillStyle='#ffffff';ctx.font='bold 13px Syne, Arial';ctx.fillText(b.val,bx+34,infoY+40);});
+  const barY=H-58;ctx.save();ctx.fillStyle='rgba(0,40,10,0.95)';ctx.strokeStyle='#00c853';ctx.lineWidth=1.5;roundRect(ctx,40,barY,W-80,42,10);ctx.fill();ctx.stroke();ctx.restore();ctx.font='18px serif';ctx.textAlign='left';ctx.fillText('✅',56,barY+28);ctx.fillStyle='#00e676';ctx.font='bold 13px Syne, Arial';ctx.fillText('SORTEO 100% VÁLIDO',86,barY+20);ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='11px Arial';ctx.fillText('Transparente  •  Seguro  •  Verificado',86,barY+36);ctx.textAlign='right';ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='10px Arial';ctx.fillText('VERIFICA EN:',W-56,barY+20);ctx.fillStyle='#00e676';ctx.font='bold 11px Arial';ctx.fillText('sorteoapp.pro/verificar',W-56,barY+36);
+  if(cfg.logo){const img=new Image();img.onload=()=>{const maxW=160,maxH=72;let lw=(img.width/img.height)*maxH,lh=maxH;if(lw>maxW){lw=maxW;lh=(img.height/img.width)*maxW;}const lx=28,ly=12;ctx.save();ctx.fillStyle='rgba(0,0,0,0.75)';ctx.strokeStyle=t.accent;ctx.lineWidth=1.5;roundRect(ctx,lx-8,ly-6,lw+16,lh+12,10);ctx.fill();ctx.stroke();ctx.globalAlpha=0.95;ctx.drawImage(img,lx,ly,lw,lh);ctx.restore();};img.src=cfg.logo;}else{ctx.textAlign='left';ctx.fillStyle=t.accent;ctx.font='bold 15px Syne, Arial';ctx.fillText(cfg.brand.toUpperCase(),36,48);}
 }
 
-function drawLaurel(ctx, cx, cy, color, flip) {
-  ctx.save();
-  ctx.translate(cx, cy);
-  if(flip) ctx.scale(-1,1);
-  const leaves=[[0,0],[12,-6],[22,-14],[30,-23],[35,-33],[37,-43]];
-  leaves.forEach(([lx,ly],i)=>{
-    ctx.save();
-    ctx.translate(lx, ly);
-    ctx.rotate(-0.25 - i*0.12);
-    ctx.fillStyle = color;
-    ctx.globalAlpha = 0.65 - i*0.05;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 5, 11, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  });
-  ctx.restore();
-}
+function drawLaurel(ctx,cx,cy,color,flip){ctx.save();ctx.translate(cx,cy);if(flip)ctx.scale(-1,1);[[0,0],[12,-6],[22,-14],[30,-23],[35,-33],[37,-43]].forEach(([lx,ly],i)=>{ctx.save();ctx.translate(lx,ly);ctx.rotate(-0.25-i*0.12);ctx.fillStyle=color;ctx.globalAlpha=0.65-i*0.05;ctx.beginPath();ctx.ellipse(0,0,5,11,0,0,Math.PI*2);ctx.fill();ctx.restore();});ctx.restore();}
 
-function roundRect(ctx, x, y, w, h, r) {
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
 
-function truncate(str, max) {
-  return str.length > max ? str.slice(0,max-1)+'…' : str;
-}
+function truncate(str,max){return str.length>max?str.slice(0,max-1)+'…':str;}
 
-function downloadCard() {
-  const canvas = document.getElementById('winnerCanvas');
-  const a = document.createElement('a');
-  a.download = 'ganador-sorteo.png';
-  a.href = canvas.toDataURL('image/png');
-  a.click();
-  notify('📥 Tarjeta descargada');
-}
+function downloadCard(){const canvas=document.getElementById('winnerCanvas');const a=document.createElement('a');a.download='ganador-sorteo.png';a.href=canvas.toDataURL('image/png');a.click();notify('📥 Tarjeta descargada');}
 
-// ─── NOTIFY ───────────────────────────────────────────────────────────────────
-function notify(msg) {
-  const n = document.createElement('div');
-  n.className = 'notif';
-  n.textContent = msg;
-  document.body.appendChild(n);
-  setTimeout(() => n.remove(), 3000);
-}
+function notify(msg){const n=document.createElement('div');n.className='notif';n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3000);}
 
-// ─── DEMO DATA ────────────────────────────────────────────────────────────────
-function loadDemo() {
-  const fbDemos = [
-    'Maria Garcia: ¡Participando, esto está increíble!',
-    'Juan Lopez: quiero ganar esto 🔥',
-    'Carlos Ruiz: participando con toda',
-    'Ana Torres: me encantaría ganar',
-    'Pedro Soto: Aquí estoy participando!',
-    'Laura Mendez: Participando, suerte para todos',
-    'Diego Herrera: yo quiero participar',
-  ];
-  const igDemos = [
-    '@mariafitness participando 💪',
-    '@juanito_cr7 quiero el premio',
-    '@carlos_gym aquí participando con @laura',
-    '@ana_belleza me uno al sorteo!',
-    '@pedro123 participando desde México',
-  ];
-  document.getElementById('fbText').value = fbDemos.join('\n');
-  document.getElementById('igText').value = igDemos.join('\n');
-  notify('📋 Datos de demo cargados — haz clic en Agregar');
-}
+function loadDemo(){document.getElementById('fbText').value=['Maria Garcia: ¡Participando, esto está increíble!','Juan Lopez: quiero ganar esto 🔥','Carlos Ruiz: participando con toda','Ana Torres: me encantaría ganar','Pedro Soto: Aquí estoy participando!'].join('\n');document.getElementById('igText').value=['@mariafitness participando 💪','@juanito_cr7 quiero el premio','@carlos_gym aquí participando con @laura'].join('\n');notify('📋 Datos de demo cargados — haz clic en Agregar');}
 
-// Add demo button hint
-window.onload = () => {
-  const imp = document.getElementById('tab-import');
-  const hint = document.createElement('div');
-  hint.style.cssText = 'text-align:right;margin-bottom:12px;';
-  hint.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;
-  imp.insertBefore(hint, imp.firstChild);
-};
+window.onload=()=>{const imp=document.getElementById('tab-import');const hint=document.createElement('div');hint.style.cssText='text-align:right;margin-bottom:12px;';hint.innerHTML=`<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;imp.insertBefore(hint,imp.firstChild);};
 </script>
 </body>
 </html>
