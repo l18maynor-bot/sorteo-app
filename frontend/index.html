@@ -908,6 +908,10 @@ function logout() {
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('authEmail').value = '';
   document.getElementById('authPassword').value = '';
+  // ── AGREGAR ESTAS DOS LÍNEAS ──
+  document.getElementById('authBtn').textContent = 'Entrar';
+  document.getElementById('authBtn').disabled = false;
+  // ─────────────────────────────
   resetMetaUI();
   notify('👋 Sesión cerrada');
 }
