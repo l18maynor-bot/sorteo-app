@@ -1068,7 +1068,8 @@ function initPayPalButtons() {
       layout: 'vertical',
       color: 'gold',
       shape: 'rect',
-      label: 'pay'
+      label: 'pay',
+      disableFunding: 'card'
     },
     createOrder: async () => {
       const r = await fetch('/payment/create', {
