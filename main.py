@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, HTMLResponse
 from pydantic import BaseModel
 import httpx, os, hashlib, secrets, random, base64
 from dotenv import load_dotenv
@@ -24,7 +24,7 @@ PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_SECRET    = os.getenv("PAYPAL_SECRET")
 PAYPAL_MODE      = os.getenv("PAYPAL_MODE", "sandbox")
 PAYPAL_BASE      = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
-PLAN_PRICE       = "9.99"  # USD — cambia cuando pases a Live
+PLAN_PRICE       = "9.99"
 PLAN_CURRENCY    = "USD"
 
 def hash_password(password: str) -> str:
@@ -148,17 +148,12 @@ async def capture_payment(data: PaymentCapture):
             result = r.json()
             if result.get("status") != "COMPLETED":
                 raise HTTPException(400, "Pago no completado")
-
-            update = await client.patch(
+            await client.patch(
                 f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{data.email}",
                 headers={**HEADERS, "Prefer": "return=representation"},
                 json={"plan": "pro", "sorteos_mes": 0}
             )
-            return {
-                "ok": True,
-                "mensaje": "¡Pago exitoso! Plan actualizado a Pro",
-                "plan": "pro"
-            }
+            return {"ok": True, "mensaje": "¡Pago exitoso! Plan actualizado a Pro", "plan": "pro"}
     except HTTPException:
         raise
     except Exception as e:
@@ -187,9 +182,8 @@ async def run_sorteo(data: dict):
 META_APP_ID       = os.getenv("META_APP_ID")
 META_APP_SECRET   = os.getenv("META_APP_SECRET")
 META_REDIRECT_URI = os.getenv("META_REDIRECT_URI", "https://appsorteos.up.railway.app/meta/callback")
-META_SCOPES = "pages_show_list"
+META_SCOPES       = "pages_show_list"
 
-# ── 1. Iniciar login con Facebook ─────────────────────────────────────────────
 @app.get("/meta/login")
 async def meta_login():
     url = (
@@ -201,14 +195,12 @@ async def meta_login():
     )
     return RedirectResponse(url)
 
-# ── 2. Callback de Facebook ───────────────────────────────────────────────────
 @app.get("/meta/callback")
 async def meta_callback(code: str = None, error: str = None):
     if error or not code:
-        return RedirectResponse("/?meta_error=acceso_denegado")
+        return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=acceso_denegado','*');window.close();</script>")
 
     async with httpx.AsyncClient() as client:
-        # Código → token corto
         r = await client.get(
             "https://graph.facebook.com/v19.0/oauth/access_token",
             params={
@@ -220,9 +212,8 @@ async def meta_callback(code: str = None, error: str = None):
         )
         short_token = r.json().get("access_token")
         if not short_token:
-            return RedirectResponse("/?meta_error=token_fallido")
+            return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=token_fallido','*');window.close();</script>")
 
-        # Token corto → token largo (60 días)
         r2 = await client.get(
             "https://graph.facebook.com/v19.0/oauth/access_token",
             params={
@@ -234,9 +225,8 @@ async def meta_callback(code: str = None, error: str = None):
         )
         long_token = r2.json().get("access_token", short_token)
 
-    return RedirectResponse(f"/#meta_token={long_token}")
+    return HTMLResponse(f"<script>window.opener&&window.opener.postMessage('meta_token={long_token}','*');window.close();</script>")
 
-# ── 3. Posts de la página o cuenta IG ────────────────────────────────────────
 @app.get("/meta/posts")
 async def meta_get_posts(token: str, source: str = "facebook"):
     async with httpx.AsyncClient() as client:
@@ -258,8 +248,7 @@ async def meta_get_posts(token: str, source: str = "facebook"):
                 params={"access_token": token, "fields": "id,caption,timestamp,media_type,permalink", "limit": 20}
             )
             return {"source": "instagram", "account": ig["name"], "posts": posts_r.json().get("data", [])}
-
-        else:  # facebook
+        else:
             pages_r = await client.get(
                 "https://graph.facebook.com/v19.0/me/accounts",
                 params={"access_token": token, "fields": "id,name,access_token"}
@@ -274,7 +263,6 @@ async def meta_get_posts(token: str, source: str = "facebook"):
             )
             return {"source": "facebook", "page": page["name"], "posts": feed_r.json().get("data", [])}
 
-# ── 4. Comentarios de un post ─────────────────────────────────────────────────
 @app.get("/meta/comments")
 async def meta_get_comments(token: str, post_id: str, source: str = "facebook"):
     async with httpx.AsyncClient() as client:
@@ -288,29 +276,14 @@ async def meta_get_comments(token: str, post_id: str, source: str = "facebook"):
                 f"https://graph.facebook.com/v19.0/{post_id}/comments",
                 params={"access_token": token, "fields": "id,message,from,created_time", "limit": 500}
             )
-
         data = r.json()
         if "error" in data:
             raise HTTPException(400, f"Error Meta API: {data['error'].get('message')}")
-
         normalized = []
         for c in data.get("data", []):
             if source == "instagram":
-                normalized.append({
-                    "id":        c.get("id"),
-                    "username":  c.get("username", ""),
-                    "name":      c.get("username", ""),
-                    "text":      c.get("text", ""),
-                    "timestamp": c.get("timestamp")
-                })
+                normalized.append({"id": c.get("id"), "username": c.get("username",""), "name": c.get("username",""), "text": c.get("text",""), "timestamp": c.get("timestamp")})
             else:
                 frm = c.get("from", {})
-                normalized.append({
-                    "id":        c.get("id"),
-                    "username":  frm.get("id", ""),
-                    "name":      frm.get("name", ""),
-                    "text":      c.get("message", ""),
-                    "timestamp": c.get("created_time")
-                })
-
+                normalized.append({"id": c.get("id"), "username": frm.get("id",""), "name": frm.get("name",""), "text": c.get("message",""), "timestamp": c.get("created_time")})
         return {"total": len(normalized), "comments": normalized}
