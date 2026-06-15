@@ -54,6 +54,10 @@ class PaymentCapture(BaseModel):
 
 @app.get("/")
 async def root():
+    return FileResponse("frontend/landing.html")
+
+@app.get("/app")
+async def app_page():
     return FileResponse("frontend/index.html")
 
 @app.get("/admin")
