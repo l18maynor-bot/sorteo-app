@@ -924,19 +924,9 @@ let metaSource = 'fb';
 let metaPosts = [];
 
 function connectMeta() {
-  window.addEventListener('message', function handler(e) {
-    const msg = e.data || '';
-    if (msg.includes('meta_token=')) {
-      metaToken = msg.split('meta_token=')[1];
-      sessionStorage.setItem('meta_token', metaToken);
-      window.removeEventListener('message', handler);
-      onMetaConnected();
-    } else if (msg.includes('meta_error=')) {
-      window.removeEventListener('message', handler);
-      notify('❌ Error al conectar con Facebook');
-    }
-  });
-  window.open('/meta/login', 'MetaLogin', 'width=600,height=700,left=400,top=100');
+  // Guarda el estado actual antes de redirigir
+  sessionStorage.setItem('meta_pending', '1');
+  window.location.href = '/meta/login';
 }
 
 function disconnectMeta() {
@@ -1169,11 +1159,31 @@ function updateReadySummary() {
   document.getElementById('readySummary').textContent = `${filtered.length} participante(s) elegibles — se seleccionará ${cfg.winners} ganador(es)`;
 }
 
-function startDraw() {
+async function startDraw() {
   const filtered = getFiltered();
   const cfg = getConfig();
   if (filtered.length === 0) { notify('⚠️ No hay participantes para sortear'); return; }
   if (filtered.length < cfg.winners) { notify('⚠️ Menos participantes que ganadores requeridos'); return; }
+
+  // Llamar al backend — verifica límite e incrementa contador
+  let result;
+  try {
+    const check = await fetch('/sorteo/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUser.email, comments: filtered, config: { no_dupes: false, winners: cfg.winners } })
+    });
+    if (check.status === 403) {
+      const err = await check.json();
+      notify('🚫 ' + (err.detail || 'Límite de sorteos alcanzado'));
+      openUpgrade();
+      return;
+    }
+    if (!check.ok) { notify('❌ Error al sortear'); return; }
+    result = await check.json();
+    lastWinners = result.winners;
+  } catch(e) { notify('❌ Error de conexión'); return; }
+
   document.getElementById('preSorteo').style.display = 'none';
   document.getElementById('winnerSection').classList.remove('show');
   const spinBox = document.getElementById('spinBox');
@@ -1186,8 +1196,6 @@ function startDraw() {
     drum.textContent = rnd.name; frame++;
     if (frame >= 120) {
       clearInterval(interval);
-      const shuffled = [...filtered].sort(() => Math.random() - 0.5);
-      lastWinners = shuffled.slice(0, cfg.winners);
       drum.textContent = lastWinners[0].name;
       drum.classList.add('settled');
       setTimeout(() => { spinBox.classList.remove('active'); showWinners(); }, 800);
@@ -1312,12 +1320,6 @@ function initPayPalButtons() {
 }
 
 window.onload = () => {
-  const imp = document.getElementById('tab-import');
-  const hint = document.createElement('div');
-  hint.style.cssText = 'text-align:right;margin-bottom:12px;';
-  hint.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;
-  imp.insertBefore(hint, imp.firstChild);
-  // Revisar hash por si viene del callback de Meta antes del login
   if (window.location.hash.includes('meta_token=')) {
     sessionStorage.setItem('meta_pending_token', window.location.hash.split('meta_token=')[1]);
     history.replaceState(null, '', window.location.pathname);
