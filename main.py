@@ -10,7 +10,6 @@ load_dotenv()
 app = FastAPI(title="SorteoApp API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-# ── Supabase ──────────────────────────────────
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY")
 HEADERS = {
@@ -19,13 +18,13 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# ── PayPal ────────────────────────────────────
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_SECRET    = os.getenv("PAYPAL_SECRET")
 PAYPAL_MODE      = os.getenv("PAYPAL_MODE", "sandbox")
 PAYPAL_BASE      = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox" else "https://api-m.paypal.com"
 PLAN_PRICE       = "9.99"
 PLAN_CURRENCY    = "USD"
+LIMITE_GRATIS    = 3
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -40,7 +39,6 @@ async def get_paypal_token() -> str:
         )
         return r.json()["access_token"]
 
-# ── Modelos ───────────────────────────────────
 class UserRegister(BaseModel):
     email: str
     password: str
@@ -53,44 +51,29 @@ class PaymentCapture(BaseModel):
     order_id: str
     email: str
 
-# ── RUTAS ─────────────────────────────────────
-
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
 
-# ── REGISTRO ──────────────────────────────────
 @app.post("/auth/register")
 async def register(user: UserRegister):
     async with httpx.AsyncClient() as client:
-        check = await client.get(
-            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}",
-            headers=HEADERS
-        )
+        check = await client.get(f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}", headers=HEADERS)
         if check.json():
             raise HTTPException(400, "Este email ya está registrado")
         r = await client.post(
             f"{SUPABASE_URL}/rest/v1/usuarios",
             headers={**HEADERS, "Prefer": "return=representation"},
-            json={
-                "email": user.email,
-                "password_hash": hash_password(user.password),
-                "plan": "gratis",
-                "sorteos_mes": 0
-            }
+            json={"email": user.email, "password_hash": hash_password(user.password), "plan": "gratis", "sorteos_mes": 0}
         )
         if r.status_code not in [200, 201]:
             raise HTTPException(500, "Error al crear usuario")
         return {"ok": True, "mensaje": "Cuenta creada exitosamente"}
 
-# ── LOGIN ─────────────────────────────────────
 @app.post("/auth/login")
 async def login(user: UserLogin):
     async with httpx.AsyncClient() as client:
-        r = await client.get(
-            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}",
-            headers=HEADERS
-        )
+        r = await client.get(f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{user.email}", headers=HEADERS)
         data = r.json()
         if not data:
             raise HTTPException(401, "Email o contraseña incorrectos")
@@ -98,15 +81,8 @@ async def login(user: UserLogin):
         if db_user["password_hash"] != hash_password(user.password):
             raise HTTPException(401, "Email o contraseña incorrectos")
         token = secrets.token_hex(32)
-        return {
-            "ok": True,
-            "token": token,
-            "email": db_user["email"],
-            "plan": db_user["plan"],
-            "sorteos_mes": db_user["sorteos_mes"]
-        }
+        return {"ok": True, "token": token, "email": db_user["email"], "plan": db_user["plan"], "sorteos_mes": db_user["sorteos_mes"]}
 
-# ── PAYPAL: Crear orden ───────────────────────
 @app.post("/payment/create")
 async def create_payment(data: dict):
     email = data.get("email")
@@ -120,14 +96,8 @@ async def create_payment(data: dict):
                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
                 json={
                     "intent": "CAPTURE",
-                    "purchase_units": [{
-                        "amount": {"currency_code": PLAN_CURRENCY, "value": PLAN_PRICE},
-                        "description": f"SorteoApp Pro — {email}"
-                    }],
-                    "application_context": {
-                        "brand_name": "SorteoApp",
-                        "user_action": "PAY_NOW"
-                    }
+                    "purchase_units": [{"amount": {"currency_code": PLAN_CURRENCY, "value": PLAN_PRICE}, "description": f"SorteoApp Pro — {email}"}],
+                    "application_context": {"brand_name": "SorteoApp", "user_action": "PAY_NOW"}
                 }
             )
             order = r.json()
@@ -135,7 +105,6 @@ async def create_payment(data: dict):
     except Exception as e:
         raise HTTPException(500, f"Error al crear pago: {str(e)}")
 
-# ── PAYPAL: Capturar pago ─────────────────────
 @app.post("/payment/capture")
 async def capture_payment(data: PaymentCapture):
     try:
@@ -159,11 +128,29 @@ async def capture_payment(data: PaymentCapture):
     except Exception as e:
         raise HTTPException(500, f"Error al capturar pago: {str(e)}")
 
-# ── SORTEO ────────────────────────────────────
+# ── SORTEO con límite plan gratis ─────────────────────────────────────────────
 @app.post("/sorteo/run")
 async def run_sorteo(data: dict):
+    email  = data.get("email")
     comments = data.get("comments", [])
     config   = data.get("config", {})
+
+    # Verificar límite plan gratis
+    if email:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}", headers=HEADERS)
+            users = r.json()
+            if users:
+                u = users[0]
+                if u["plan"] == "gratis" and u["sorteos_mes"] >= LIMITE_GRATIS:
+                    raise HTTPException(403, f"Límite de {LIMITE_GRATIS} sorteos mensuales alcanzado. ¡Upgrade a Pro!")
+                # Incrementar contador
+                await client.patch(
+                    f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}",
+                    headers={**HEADERS, "Prefer": "return=representation"},
+                    json={"sorteos_mes": u["sorteos_mes"] + 1}
+                )
+
     if config.get("no_dupes", True):
         seen, unique = set(), []
         for c in comments:
@@ -172,13 +159,14 @@ async def run_sorteo(data: dict):
                 seen.add(uid)
                 unique.append(c)
         comments = unique
+
     n = config.get("winners", 1)
     if len(comments) < n:
         raise HTTPException(400, "No hay suficientes participantes")
     winners = random.sample(comments, n)
     return {"winners": winners, "total": len(comments)}
 
-# ── META / FACEBOOK OAuth ─────────────────────────────────────────────────────
+# ── META OAuth ────────────────────────────────────────────────────────────────
 META_APP_ID       = os.getenv("META_APP_ID")
 META_APP_SECRET   = os.getenv("META_APP_SECRET")
 META_REDIRECT_URI = os.getenv("META_REDIRECT_URI", "https://appsorteos.up.railway.app/meta/callback")
@@ -199,83 +187,49 @@ async def meta_login():
 async def meta_callback(code: str = None, error: str = None):
     if error or not code:
         return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=acceso_denegado','*');window.close();</script>")
-
     async with httpx.AsyncClient() as client:
         r = await client.get(
             "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={
-                "client_id":     META_APP_ID,
-                "client_secret": META_APP_SECRET,
-                "redirect_uri":  META_REDIRECT_URI,
-                "code":          code,
-            }
+            params={"client_id": META_APP_ID, "client_secret": META_APP_SECRET, "redirect_uri": META_REDIRECT_URI, "code": code}
         )
         short_token = r.json().get("access_token")
         if not short_token:
             return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=token_fallido','*');window.close();</script>")
-
         r2 = await client.get(
             "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={
-                "grant_type":        "fb_exchange_token",
-                "client_id":         META_APP_ID,
-                "client_secret":     META_APP_SECRET,
-                "fb_exchange_token": short_token,
-            }
+            params={"grant_type": "fb_exchange_token", "client_id": META_APP_ID, "client_secret": META_APP_SECRET, "fb_exchange_token": short_token}
         )
         long_token = r2.json().get("access_token", short_token)
-
     return HTMLResponse(f"<script>window.opener&&window.opener.postMessage('meta_token={long_token}','*');window.close();</script>")
 
 @app.get("/meta/posts")
 async def meta_get_posts(token: str, source: str = "facebook"):
     async with httpx.AsyncClient() as client:
         if source == "instagram":
-            pages_r = await client.get(
-                "https://graph.facebook.com/v19.0/me/accounts",
-                params={"access_token": token, "fields": "id,name,instagram_business_account"}
-            )
+            pages_r = await client.get("https://graph.facebook.com/v19.0/me/accounts", params={"access_token": token, "fields": "id,name,instagram_business_account"})
             pages = pages_r.json().get("data", [])
-            ig_accounts = [
-                {"id": p["instagram_business_account"]["id"], "name": p["name"]}
-                for p in pages if p.get("instagram_business_account")
-            ]
+            ig_accounts = [{"id": p["instagram_business_account"]["id"], "name": p["name"]} for p in pages if p.get("instagram_business_account")]
             if not ig_accounts:
                 raise HTTPException(404, "No se encontró cuenta de Instagram Business conectada")
             ig = ig_accounts[0]
-            posts_r = await client.get(
-                f"https://graph.facebook.com/v19.0/{ig['id']}/media",
-                params={"access_token": token, "fields": "id,caption,timestamp,media_type,permalink", "limit": 20}
-            )
+            posts_r = await client.get(f"https://graph.facebook.com/v19.0/{ig['id']}/media", params={"access_token": token, "fields": "id,caption,timestamp,media_type,permalink", "limit": 20})
             return {"source": "instagram", "account": ig["name"], "posts": posts_r.json().get("data", [])}
         else:
-            pages_r = await client.get(
-                "https://graph.facebook.com/v19.0/me/accounts",
-                params={"access_token": token, "fields": "id,name,access_token"}
-            )
+            pages_r = await client.get("https://graph.facebook.com/v19.0/me/accounts", params={"access_token": token, "fields": "id,name,access_token"})
             pages = pages_r.json().get("data", [])
             if not pages:
                 raise HTTPException(404, "No se encontraron páginas de Facebook")
             page = pages[0]
-            feed_r = await client.get(
-                f"https://graph.facebook.com/v19.0/{page['id']}/posts",
-                params={"access_token": page["access_token"], "fields": "id,message,created_time,permalink_url", "limit": 20}
-            )
+            feed_r = await client.get(f"https://graph.facebook.com/v19.0/{page['id']}/posts", params={"access_token": page["access_token"], "fields": "id,message,created_time,permalink_url", "limit": 20})
             return {"source": "facebook", "page": page["name"], "posts": feed_r.json().get("data", [])}
 
 @app.get("/meta/comments")
 async def meta_get_comments(token: str, post_id: str, source: str = "facebook"):
     async with httpx.AsyncClient() as client:
         if source == "instagram":
-            r = await client.get(
-                f"https://graph.facebook.com/v19.0/{post_id}/comments",
-                params={"access_token": token, "fields": "id,text,username,timestamp", "limit": 500}
-            )
+            r = await client.get(f"https://graph.facebook.com/v19.0/{post_id}/comments", params={"access_token": token, "fields": "id,text,username,timestamp", "limit": 500})
         else:
-            r = await client.get(
-                f"https://graph.facebook.com/v19.0/{post_id}/comments",
-                params={"access_token": token, "fields": "id,message,from,created_time", "limit": 500}
-            )
+            r = await client.get(f"https://graph.facebook.com/v19.0/{post_id}/comments", params={"access_token": token, "fields": "id,message,from,created_time", "limit": 500})
         data = r.json()
         if "error" in data:
             raise HTTPException(400, f"Error Meta API: {data['error'].get('message')}")
