@@ -924,9 +924,19 @@ let metaSource = 'fb';
 let metaPosts = [];
 
 function connectMeta() {
-  // Guarda el estado actual antes de redirigir
-  sessionStorage.setItem('meta_pending', '1');
-  window.location.href = '/meta/login';
+  window.addEventListener('message', function handler(e) {
+    const msg = e.data || '';
+    if (msg.includes('meta_token=')) {
+      metaToken = msg.split('meta_token=')[1];
+      sessionStorage.setItem('meta_token', metaToken);
+      window.removeEventListener('message', handler);
+      onMetaConnected();
+    } else if (msg.includes('meta_error=')) {
+      window.removeEventListener('message', handler);
+      notify('❌ Error al conectar con Facebook');
+    }
+  });
+  window.open('/meta/login', 'MetaLogin', 'width=600,height=700,left=400,top=100');
 }
 
 function disconnectMeta() {
