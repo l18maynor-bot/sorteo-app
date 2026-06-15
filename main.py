@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse, HTMLResponse
 from pydantic import BaseModel
@@ -25,6 +25,7 @@ PAYPAL_BASE      = "https://api-m.sandbox.paypal.com" if PAYPAL_MODE == "sandbox
 PLAN_PRICE       = "9.99"
 PLAN_CURRENCY    = "USD"
 LIMITE_GRATIS    = 3
+ADMIN_SECRET     = os.getenv("ADMIN_SECRET", "sorteo_admin_2025")
 
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
@@ -54,6 +55,69 @@ class PaymentCapture(BaseModel):
 @app.get("/")
 async def root():
     return FileResponse("frontend/index.html")
+
+@app.get("/admin")
+async def admin_panel():
+    return FileResponse("frontend/admin.html")
+
+# ── ADMIN: datos de usuarios ──────────────────────────────────────────────────
+@app.get("/admin/data")
+async def admin_data(secret: str = Query(...)):
+    if secret != ADMIN_SECRET:
+        raise HTTPException(403, "No autorizado")
+    async with httpx.AsyncClient() as client:
+        r = await client.get(
+            f"{SUPABASE_URL}/rest/v1/usuarios?select=email,plan,sorteos_mes,created_at&order=created_at.desc",
+            headers=HEADERS
+        )
+        usuarios = r.json()
+        total = len(usuarios)
+        pro = sum(1 for u in usuarios if u.get("plan") == "pro")
+        gratis = total - pro
+        sorteos_total = sum(u.get("sorteos_mes", 0) for u in usuarios)
+        return {
+            "stats": {
+                "total_usuarios": total,
+                "usuarios_pro": pro,
+                "usuarios_gratis": gratis,
+                "sorteos_este_mes": sorteos_total,
+                "mrr": round(pro * 9.99, 2)
+            },
+            "usuarios": usuarios
+        }
+
+# ── ADMIN: cambiar plan de usuario ────────────────────────────────────────────
+@app.post("/admin/set-plan")
+async def admin_set_plan(data: dict):
+    if data.get("secret") != ADMIN_SECRET:
+        raise HTTPException(403, "No autorizado")
+    email = data.get("email")
+    plan  = data.get("plan")
+    if not email or plan not in ["gratis", "pro"]:
+        raise HTTPException(400, "Datos inválidos")
+    async with httpx.AsyncClient() as client:
+        await client.patch(
+            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}",
+            headers={**HEADERS, "Prefer": "return=representation"},
+            json={"plan": plan, "sorteos_mes": 0}
+        )
+    return {"ok": True, "mensaje": f"Plan de {email} actualizado a {plan}"}
+
+# ── ADMIN: resetear contador de sorteos ───────────────────────────────────────
+@app.post("/admin/reset-counter")
+async def admin_reset_counter(data: dict):
+    if data.get("secret") != ADMIN_SECRET:
+        raise HTTPException(403, "No autorizado")
+    email = data.get("email")
+    if not email:
+        raise HTTPException(400, "Email requerido")
+    async with httpx.AsyncClient() as client:
+        await client.patch(
+            f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}",
+            headers={**HEADERS, "Prefer": "return=representation"},
+            json={"sorteos_mes": 0}
+        )
+    return {"ok": True}
 
 @app.post("/auth/register")
 async def register(user: UserRegister):
@@ -128,14 +192,11 @@ async def capture_payment(data: PaymentCapture):
     except Exception as e:
         raise HTTPException(500, f"Error al capturar pago: {str(e)}")
 
-# ── SORTEO con límite plan gratis ─────────────────────────────────────────────
 @app.post("/sorteo/run")
 async def run_sorteo(data: dict):
-    email  = data.get("email")
+    email    = data.get("email")
     comments = data.get("comments", [])
     config   = data.get("config", {})
-
-    # Verificar límite plan gratis
     if email:
         async with httpx.AsyncClient() as client:
             r = await client.get(f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}", headers=HEADERS)
@@ -144,13 +205,11 @@ async def run_sorteo(data: dict):
                 u = users[0]
                 if u["plan"] == "gratis" and u["sorteos_mes"] >= LIMITE_GRATIS:
                     raise HTTPException(403, f"Límite de {LIMITE_GRATIS} sorteos mensuales alcanzado. ¡Upgrade a Pro!")
-                # Incrementar contador
                 await client.patch(
                     f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{email}",
                     headers={**HEADERS, "Prefer": "return=representation"},
                     json={"sorteos_mes": u["sorteos_mes"] + 1}
                 )
-
     if config.get("no_dupes", True):
         seen, unique = set(), []
         for c in comments:
@@ -159,14 +218,12 @@ async def run_sorteo(data: dict):
                 seen.add(uid)
                 unique.append(c)
         comments = unique
-
     n = config.get("winners", 1)
     if len(comments) < n:
         raise HTTPException(400, "No hay suficientes participantes")
     winners = random.sample(comments, n)
     return {"winners": winners, "total": len(comments)}
 
-# ── META OAuth ────────────────────────────────────────────────────────────────
 META_APP_ID       = os.getenv("META_APP_ID")
 META_APP_SECRET   = os.getenv("META_APP_SECRET")
 META_REDIRECT_URI = os.getenv("META_REDIRECT_URI", "https://appsorteos.up.railway.app/meta/callback")
@@ -174,13 +231,7 @@ META_SCOPES       = "pages_show_list"
 
 @app.get("/meta/login")
 async def meta_login():
-    url = (
-        f"https://www.facebook.com/v19.0/dialog/oauth"
-        f"?client_id={META_APP_ID}"
-        f"&redirect_uri={META_REDIRECT_URI}"
-        f"&scope={META_SCOPES}"
-        f"&response_type=code"
-    )
+    url = (f"https://www.facebook.com/v19.0/dialog/oauth?client_id={META_APP_ID}&redirect_uri={META_REDIRECT_URI}&scope={META_SCOPES}&response_type=code")
     return RedirectResponse(url)
 
 @app.get("/meta/callback")
@@ -188,17 +239,13 @@ async def meta_callback(code: str = None, error: str = None):
     if error or not code:
         return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=acceso_denegado','*');window.close();</script>")
     async with httpx.AsyncClient() as client:
-        r = await client.get(
-            "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={"client_id": META_APP_ID, "client_secret": META_APP_SECRET, "redirect_uri": META_REDIRECT_URI, "code": code}
-        )
+        r = await client.get("https://graph.facebook.com/v19.0/oauth/access_token",
+            params={"client_id": META_APP_ID, "client_secret": META_APP_SECRET, "redirect_uri": META_REDIRECT_URI, "code": code})
         short_token = r.json().get("access_token")
         if not short_token:
             return HTMLResponse("<script>window.opener&&window.opener.postMessage('meta_error=token_fallido','*');window.close();</script>")
-        r2 = await client.get(
-            "https://graph.facebook.com/v19.0/oauth/access_token",
-            params={"grant_type": "fb_exchange_token", "client_id": META_APP_ID, "client_secret": META_APP_SECRET, "fb_exchange_token": short_token}
-        )
+        r2 = await client.get("https://graph.facebook.com/v19.0/oauth/access_token",
+            params={"grant_type": "fb_exchange_token", "client_id": META_APP_ID, "client_secret": META_APP_SECRET, "fb_exchange_token": short_token})
         long_token = r2.json().get("access_token", short_token)
     return HTMLResponse(f"<script>window.opener&&window.opener.postMessage('meta_token={long_token}','*');window.close();</script>")
 
