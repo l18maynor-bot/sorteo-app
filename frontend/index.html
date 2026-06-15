@@ -444,6 +444,99 @@
   .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
   .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
 
+  /* META CONNECT */
+  .meta-connect-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .meta-connect-box.connected {
+    border-color: rgba(109,250,189,0.3);
+    background: rgba(109,250,189,0.04);
+  }
+  .meta-connect-info { display: flex; align-items: center; gap: 10px; }
+  .meta-connect-info .meta-icon { font-size: 22px; }
+  .meta-connect-info p { font-size: 13px; color: var(--muted); margin: 0; }
+  .meta-connect-info strong { color: var(--text); display: block; font-size: 14px; }
+  .btn-fb {
+    background: #1877f2;
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-fb:hover { background: #1464d2; transform: translateY(-1px); }
+  .btn-disconnect {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-disconnect:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* POST SELECTOR */
+  .post-selector {
+    display: none;
+    margin-bottom: 14px;
+  }
+  .post-selector.show { display: block; }
+  .post-selector label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+  .post-selector select {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 10px 12px; outline: none;
+  }
+  .post-selector select:focus { border-color: var(--accent); }
+  .load-comments-btn {
+    margin-top: 8px;
+    background: linear-gradient(135deg, #1877f2, #0e5bb5);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .load-comments-btn:hover { transform: translateY(-1px); }
+  .source-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .source-toggle button {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .source-toggle button.active-fb { background: rgba(24,119,242,0.15); color: var(--fb); border-color: rgba(24,119,242,0.3); }
+  .source-toggle button.active-ig { background: rgba(225,48,108,0.15); color: var(--ig); border-color: rgba(225,48,108,0.3); }
+
   .comment-list { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); }
   .comment-list::-webkit-scrollbar { width: 6px; }
   .comment-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
@@ -489,9 +582,7 @@
 <script src="https://www.paypal.com/sdk/js?client-id=Aetr6oTw3mlLezhBBEZgYcOEdMg4eunhQn_keSx5xyFIApi5iufUYaVj3lJpqHgLOEebhn1w3o3fNKXj&currency=USD"></script></head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- MODAL DE UPGRADE A PRO                                  -->
-<!-- ═══════════════════════════════════════════════════════ -->
+<!-- MODAL UPGRADE -->
 <div id="upgradeModal">
   <div class="upgrade-box">
     <button class="upgrade-close" onclick="closeUpgrade()">✕</button>
@@ -522,9 +613,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- PANTALLA DE LOGIN                                       -->
-<!-- ═══════════════════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-box">
     <div class="login-logo">
@@ -547,9 +636,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- BARRA DE USUARIO (aparece tras login)                   -->
-<!-- ═══════════════════════════════════════════════════════ -->
+<!-- USER BAR -->
 <div id="userBar">
   <div class="user-info">
     <div class="user-avatar" id="userAvatar">?</div>
@@ -562,14 +649,12 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- APP PRINCIPAL                                           -->
-<!-- ═══════════════════════════════════════════════════════ -->
+<!-- APP PRINCIPAL -->
 <div class="container" id="mainApp" style="display:none;">
   <header>
     <div class="logo-mark">🎉 SorteoApp</div>
     <h1>Sorteos <span>Multi-Red</span></h1>
-    <p class="subtitle">Pega comentarios de Facebook, Instagram o ambos — sortea en segundos</p>
+    <p class="subtitle">Conecta Facebook e Instagram — importa comentarios en un clic</p>
   </header>
 
   <div class="tabs">
@@ -580,6 +665,53 @@
 
   <!-- TAB: IMPORT -->
   <div id="tab-import" class="section active">
+
+    <!-- BLOQUE META CONNECT -->
+    <div class="card" id="metaConnectCard">
+      <div class="card-title">🔗 Conectar Redes Sociales</div>
+
+      <!-- Estado: desconectado -->
+      <div id="metaDisconnected">
+        <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">Conecta tu cuenta de Facebook para importar comentarios automáticamente desde tus páginas e Instagram.</p>
+        <button class="btn-fb" onclick="connectMeta()">
+          📘 Conectar con Facebook / Instagram
+        </button>
+      </div>
+
+      <!-- Estado: conectado -->
+      <div id="metaConnected" style="display:none;">
+        <div class="meta-connect-box connected">
+          <div class="meta-connect-info">
+            <span class="meta-icon">✅</span>
+            <div>
+              <strong id="metaPageName">Cuenta conectada</strong>
+              <p>Facebook + Instagram conectados</p>
+            </div>
+          </div>
+          <button class="btn-disconnect" onclick="disconnectMeta()">Desconectar</button>
+        </div>
+
+        <!-- Toggle FB / IG -->
+        <div class="source-toggle">
+          <button id="btnSrcFB" onclick="setSrcActive('fb')" class="active-fb">📘 Facebook</button>
+          <button id="btnSrcIG" onclick="setSrcActive('ig')">📷 Instagram</button>
+        </div>
+
+        <!-- Selector de post -->
+        <div class="post-selector show" id="postSelectorWrap">
+          <label>Selecciona un post</label>
+          <select id="postSelect">
+            <option value="">⏳ Cargando posts...</option>
+          </select>
+          <button class="load-comments-btn" onclick="loadCommentsFromPost()">
+            ⬇️ Cargar comentarios del post
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- FIN META CONNECT -->
+
+    <!-- MANUAL FB -->
     <div class="card">
       <div class="card-title">
         <span class="dot dot-fb"></span> Facebook
@@ -591,6 +723,7 @@
       <button class="btn btn-secondary btn-sm" onclick="parseComments('fb')">➕ Agregar al sorteo</button>
     </div>
 
+    <!-- MANUAL IG -->
     <div class="card">
       <div class="card-title">
         <span class="dot dot-ig"></span> Instagram
@@ -602,6 +735,7 @@
       <button class="btn btn-secondary btn-sm" onclick="parseComments('ig')">➕ Agregar al sorteo</button>
     </div>
 
+    <!-- POOL -->
     <div class="card" id="poolCard">
       <div class="card-title">
         👥 Participantes
@@ -735,81 +869,172 @@ async function submitAuth() {
   const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
   errEl.style.display = 'none';
-
-  if (!email || !password) {
-    errEl.textContent = 'Por favor llena todos los campos';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (password.length < 6) {
-    errEl.textContent = 'La contraseña debe tener al menos 6 caracteres';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  if (!email || !password) { errEl.textContent = 'Por favor llena todos los campos'; errEl.style.display = 'block'; return; }
+  if (password.length < 6) { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres'; errEl.style.display = 'block'; return; }
   const btn = document.getElementById('authBtn');
-  btn.textContent = '⏳ Procesando...';
-  btn.disabled = true;
-
+  btn.textContent = '⏳ Procesando...'; btn.disabled = true;
   const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
   try {
-    const r = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
     const data = await r.json();
-    if (!r.ok) {
-      errEl.textContent = data.detail || 'Error al procesar';
-      errEl.style.display = 'block';
-      btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta';
-      btn.disabled = false;
-      return;
-    }
-    // Login exitoso
+    if (!r.ok) { errEl.textContent = data.detail || 'Error al procesar'; errEl.style.display = 'block'; btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta'; btn.disabled = false; return; }
     currentUser = data;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('userBar').classList.add('show');
     document.getElementById('mainApp').style.display = 'block';
     document.getElementById('mainApp').classList.add('with-bar');
-    // Mostrar info usuario
     const initials = email.slice(0,2).toUpperCase();
     document.getElementById('userAvatar').textContent = initials;
     document.getElementById('userEmail').textContent = email;
     document.getElementById('userPlan').textContent = (data.plan || 'gratis').toUpperCase();
-    if (data.plan === 'pro') {
-      document.getElementById('userPlan').classList.add('pro');
-    } else {
-      document.getElementById('upgradeBtn').style.display = 'block';
-    }
+    if (data.plan === 'pro') { document.getElementById('userPlan').classList.add('pro'); }
+    else { document.getElementById('upgradeBtn').style.display = 'block'; }
+    // Revisar si hay token Meta en el hash (volvió del callback)
+    checkMetaToken();
     if (authMode === 'register') notify('🎉 ¡Cuenta creada! Bienvenido a SorteoApp');
     else notify('👋 Bienvenido de vuelta, ' + email.split('@')[0]);
   } catch(e) {
-    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
-    errEl.style.display = 'block';
-    btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta';
-    btn.disabled = false;
+    errEl.textContent = 'Error de conexión. Intenta de nuevo.'; errEl.style.display = 'block';
+    btn.textContent = authMode === 'login' ? 'Entrar' : 'Crear cuenta'; btn.disabled = false;
   }
 }
 
 function logout() {
   currentUser = null;
+  metaToken = null;
+  metaSource = 'fb';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('userBar').classList.remove('show');
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('authEmail').value = '';
   document.getElementById('authPassword').value = '';
+  resetMetaUI();
   notify('👋 Sesión cerrada');
 }
 
-// Permitir Enter en los inputs
 document.addEventListener('DOMContentLoaded', () => {
   ['authEmail','authPassword'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') submitAuth();
-    });
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
   });
 });
+
+// ─── META OAUTH ───────────────────────────────────────────────────────────────
+let metaToken = null;
+let metaSource = 'fb';
+let metaPosts = [];
+
+function connectMeta() {
+  // Guarda el estado actual antes de redirigir
+  sessionStorage.setItem('meta_pending', '1');
+  window.location.href = '/meta/login';
+}
+
+function disconnectMeta() {
+  metaToken = null;
+  metaPosts = [];
+  sessionStorage.removeItem('meta_token');
+  resetMetaUI();
+  notify('🔌 Cuenta desconectada');
+}
+
+function resetMetaUI() {
+  document.getElementById('metaDisconnected').style.display = 'block';
+  document.getElementById('metaConnected').style.display = 'none';
+}
+
+// Revisar si el callback dejó un token en el hash
+function checkMetaToken() {
+  const hash = window.location.hash;
+  if (hash.includes('meta_token=')) {
+    const token = hash.split('meta_token=')[1];
+    if (token) {
+      metaToken = token;
+      sessionStorage.setItem('meta_token', token);
+      // Limpiar el hash de la URL
+      history.replaceState(null, '', window.location.pathname);
+      onMetaConnected();
+    }
+  } else if (hash.includes('meta_error=')) {
+    history.replaceState(null, '', window.location.pathname);
+    notify('❌ Error al conectar con Facebook. Intenta de nuevo.');
+  } else {
+    // Recuperar token de sesión si existe
+    const saved = sessionStorage.getItem('meta_token');
+    if (saved) { metaToken = saved; onMetaConnected(); }
+  }
+}
+
+async function onMetaConnected() {
+  document.getElementById('metaDisconnected').style.display = 'none';
+  document.getElementById('metaConnected').style.display = 'block';
+  notify('✅ Facebook conectado — cargando posts...');
+  await loadPosts();
+}
+
+function setSrcActive(src) {
+  metaSource = src;
+  document.getElementById('btnSrcFB').className = src === 'fb' ? 'active-fb' : '';
+  document.getElementById('btnSrcIG').className = src === 'ig' ? 'active-ig' : '';
+  loadPosts();
+}
+
+async function loadPosts() {
+  const sel = document.getElementById('postSelect');
+  sel.innerHTML = '<option value="">⏳ Cargando posts...</option>';
+  try {
+    const r = await fetch(`/meta/posts?token=${encodeURIComponent(metaToken)}&source=${metaSource}`);
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || 'Error al cargar posts');
+
+    // Actualizar nombre de página
+    const pageName = data.page || data.account || 'Cuenta conectada';
+    document.getElementById('metaPageName').textContent = pageName;
+
+    metaPosts = data.posts || [];
+    if (metaPosts.length === 0) {
+      sel.innerHTML = '<option value="">Sin posts recientes</option>';
+      return;
+    }
+    sel.innerHTML = metaPosts.map((p, i) => {
+      const label = (p.message || p.caption || 'Post sin texto').slice(0, 60);
+      const date = p.created_time || p.timestamp ? new Date(p.created_time || p.timestamp).toLocaleDateString('es-ES') : '';
+      return `<option value="${p.id}">${date ? date + ' — ' : ''}${label}...</option>`;
+    }).join('');
+    notify(`📄 ${metaPosts.length} posts cargados`);
+  } catch(e) {
+    sel.innerHTML = '<option value="">❌ Error al cargar posts</option>';
+    notify('❌ ' + e.message);
+  }
+}
+
+async function loadCommentsFromPost() {
+  const postId = document.getElementById('postSelect').value;
+  if (!postId) { notify('Selecciona un post primero'); return; }
+  const btn = document.querySelector('.load-comments-btn');
+  btn.textContent = '⏳ Cargando comentarios...'; btn.disabled = true;
+  try {
+    const r = await fetch(`/meta/comments?token=${encodeURIComponent(metaToken)}&post_id=${postId}&source=${metaSource}`);
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || 'Error al cargar comentarios');
+    const comments = data.comments || [];
+    if (comments.length === 0) { notify('⚠️ Este post no tiene comentarios'); btn.textContent = '⬇️ Cargar comentarios del post'; btn.disabled = false; return; }
+
+    const colors = metaSource === 'fb' ? COLORS_FB : COLORS_IG;
+    let added = 0;
+    comments.forEach(c => {
+      const name = c.username || c.name || 'Usuario';
+      const text = c.text || '';
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      participants.push({ name, source: metaSource, text, color });
+      added++;
+    });
+    renderPool();
+    notify(`✅ ${added} comentarios importados desde ${metaSource.toUpperCase()}`);
+  } catch(e) {
+    notify('❌ ' + e.message);
+  }
+  btn.textContent = '⬇️ Cargar comentarios del post'; btn.disabled = false;
+}
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let participants = [];
@@ -817,8 +1042,7 @@ let lastWinners = [];
 let logoDataURL = null;
 
 function handleLogoUpload(input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
     logoDataURL = e.target.result;
@@ -902,9 +1126,7 @@ function renderPool() {
 
 function clearPool() {
   if (!confirm('¿Borrar todos los participantes?')) return;
-  participants = [];
-  renderPool();
-  notify('🗑 Lista limpiada');
+  participants = []; renderPool(); notify('🗑 Lista limpiada');
 }
 
 function getConfig() {
@@ -951,8 +1173,7 @@ function startDraw() {
   let frame = 0;
   const interval = setInterval(() => {
     const rnd = filtered[Math.floor(Math.random() * filtered.length)];
-    drum.textContent = rnd.name;
-    frame++;
+    drum.textContent = rnd.name; frame++;
     if (frame >= 120) {
       clearInterval(interval);
       const shuffled = [...filtered].sort(() => Math.random() - 0.5);
@@ -1034,51 +1255,24 @@ function drawWinnerCard() {
 }
 
 function drawLaurel(ctx,cx,cy,color,flip){ctx.save();ctx.translate(cx,cy);if(flip)ctx.scale(-1,1);[[0,0],[12,-6],[22,-14],[30,-23],[35,-33],[37,-43]].forEach(([lx,ly],i)=>{ctx.save();ctx.translate(lx,ly);ctx.rotate(-0.25-i*0.12);ctx.fillStyle=color;ctx.globalAlpha=0.65-i*0.05;ctx.beginPath();ctx.ellipse(0,0,5,11,0,0,Math.PI*2);ctx.fill();ctx.restore();});ctx.restore();}
-
 function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
-
 function truncate(str,max){return str.length>max?str.slice(0,max-1)+'…':str;}
-
 function downloadCard(){const canvas=document.getElementById('winnerCanvas');const a=document.createElement('a');a.download='ganador-sorteo.png';a.href=canvas.toDataURL('image/png');a.click();notify('📥 Tarjeta descargada');}
-
 function notify(msg){const n=document.createElement('div');n.className='notif';n.textContent=msg;document.body.appendChild(n);setTimeout(()=>n.remove(),3000);}
-
 function loadDemo(){document.getElementById('fbText').value=['Maria Garcia: ¡Participando, esto está increíble!','Juan Lopez: quiero ganar esto 🔥','Carlos Ruiz: participando con toda','Ana Torres: me encantaría ganar','Pedro Soto: Aquí estoy participando!'].join('\n');document.getElementById('igText').value=['@mariafitness participando 💪','@juanito_cr7 quiero el premio','@carlos_gym aquí participando con @laura'].join('\n');notify('📋 Datos de demo cargados — haz clic en Agregar');}
 
 // ─── UPGRADE / PAYPAL ─────────────────────────────────────────────────────────
-function openUpgrade() {
-  document.getElementById('upgradeModal').classList.add('show');
-  initPayPalButtons();
-}
-
-function closeUpgrade() {
-  document.getElementById('upgradeModal').classList.remove('show');
-}
-
+function openUpgrade(){document.getElementById('upgradeModal').classList.add('show');initPayPalButtons();}
+function closeUpgrade(){document.getElementById('upgradeModal').classList.remove('show');}
 let paypalInitialized = false;
-
 function initPayPalButtons() {
   if (paypalInitialized) return;
-  if (typeof paypal === 'undefined') {
-    notify('⚠️ PayPal no cargó. Recarga la página.');
-    return;
-  }
+  if (typeof paypal === 'undefined') { notify('⚠️ PayPal no cargó. Recarga la página.'); return; }
   paypalInitialized = true;
-
   paypal.Buttons({
-    style: {
-      layout: 'vertical',
-      color: 'gold',
-      shape: 'rect',
-      label: 'pay',
-      disableFunding: 'card'
-    },
+    style: { layout:'vertical', color:'gold', shape:'rect', label:'pay', disableFunding:'card' },
     createOrder: async () => {
-      const r = await fetch('/payment/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: currentUser.email })
-      });
+      const r = await fetch('/payment/create', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: currentUser.email }) });
       const data = await r.json();
       if (!r.ok) throw new Error(data.detail || 'Error al crear orden');
       return data.order_id;
@@ -1087,14 +1281,9 @@ function initPayPalButtons() {
       document.getElementById('paypal-button-container').style.display = 'none';
       document.getElementById('paypal-loading').style.display = 'block';
       try {
-        const r = await fetch('/payment/capture', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order_id: data.orderID, email: currentUser.email })
-        });
+        const r = await fetch('/payment/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ order_id: data.orderID, email: currentUser.email }) });
         const result = await r.json();
         if (!r.ok) throw new Error(result.detail || 'Error al capturar');
-        // Actualizar UI
         currentUser.plan = 'pro';
         document.getElementById('userPlan').textContent = 'PRO';
         document.getElementById('userPlan').classList.add('pro');
@@ -1107,17 +1296,23 @@ function initPayPalButtons() {
         notify('❌ Error: ' + e.message);
       }
     },
-    onError: (err) => {
-      notify('❌ Error en el pago. Intenta de nuevo.');
-      console.error(err);
-    },
-    onCancel: () => {
-      notify('⚠️ Pago cancelado.');
-    }
+    onError: (err) => { notify('❌ Error en el pago. Intenta de nuevo.'); console.error(err); },
+    onCancel: () => { notify('⚠️ Pago cancelado.'); }
   }).render('#paypal-button-container');
 }
 
-window.onload=()=>{const imp=document.getElementById('tab-import');const hint=document.createElement('div');hint.style.cssText='text-align:right;margin-bottom:12px;';hint.innerHTML=`<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;imp.insertBefore(hint,imp.firstChild);};
+window.onload = () => {
+  const imp = document.getElementById('tab-import');
+  const hint = document.createElement('div');
+  hint.style.cssText = 'text-align:right;margin-bottom:12px;';
+  hint.innerHTML = `<button class="btn btn-secondary btn-sm" onclick="loadDemo()">🧪 Cargar Demo</button>`;
+  imp.insertBefore(hint, imp.firstChild);
+  // Revisar hash por si viene del callback de Meta antes del login
+  if (window.location.hash.includes('meta_token=')) {
+    sessionStorage.setItem('meta_pending_token', window.location.hash.split('meta_token=')[1]);
+    history.replaceState(null, '', window.location.pathname);
+  }
+};
 </script>
 </body>
 </html>
