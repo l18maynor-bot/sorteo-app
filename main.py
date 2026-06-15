@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 import httpx, os, hashlib, secrets, random, base64
 from dotenv import load_dotenv
@@ -141,7 +141,6 @@ async def capture_payment(data: PaymentCapture):
     try:
         token = await get_paypal_token()
         async with httpx.AsyncClient() as client:
-            # Capturar el pago en PayPal
             r = await client.post(
                 f"{PAYPAL_BASE}/v2/checkout/orders/{data.order_id}/capture",
                 headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
@@ -150,7 +149,6 @@ async def capture_payment(data: PaymentCapture):
             if result.get("status") != "COMPLETED":
                 raise HTTPException(400, "Pago no completado")
 
-            # Actualizar plan en Supabase
             update = await client.patch(
                 f"{SUPABASE_URL}/rest/v1/usuarios?email=eq.{data.email}",
                 headers={**HEADERS, "Prefer": "return=representation"},
@@ -184,3 +182,135 @@ async def run_sorteo(data: dict):
         raise HTTPException(400, "No hay suficientes participantes")
     winners = random.sample(comments, n)
     return {"winners": winners, "total": len(comments)}
+
+# ── META / FACEBOOK OAuth ─────────────────────────────────────────────────────
+META_APP_ID       = os.getenv("META_APP_ID")
+META_APP_SECRET   = os.getenv("META_APP_SECRET")
+META_REDIRECT_URI = os.getenv("META_REDIRECT_URI", "https://appsorteos.up.railway.app/meta/callback")
+META_SCOPES       = "pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_comments"
+
+# ── 1. Iniciar login con Facebook ─────────────────────────────────────────────
+@app.get("/meta/login")
+async def meta_login():
+    url = (
+        f"https://www.facebook.com/v19.0/dialog/oauth"
+        f"?client_id={META_APP_ID}"
+        f"&redirect_uri={META_REDIRECT_URI}"
+        f"&scope={META_SCOPES}"
+        f"&response_type=code"
+    )
+    return RedirectResponse(url)
+
+# ── 2. Callback de Facebook ───────────────────────────────────────────────────
+@app.get("/meta/callback")
+async def meta_callback(code: str = None, error: str = None):
+    if error or not code:
+        return RedirectResponse("/?meta_error=acceso_denegado")
+
+    async with httpx.AsyncClient() as client:
+        # Código → token corto
+        r = await client.get(
+            "https://graph.facebook.com/v19.0/oauth/access_token",
+            params={
+                "client_id":     META_APP_ID,
+                "client_secret": META_APP_SECRET,
+                "redirect_uri":  META_REDIRECT_URI,
+                "code":          code,
+            }
+        )
+        short_token = r.json().get("access_token")
+        if not short_token:
+            return RedirectResponse("/?meta_error=token_fallido")
+
+        # Token corto → token largo (60 días)
+        r2 = await client.get(
+            "https://graph.facebook.com/v19.0/oauth/access_token",
+            params={
+                "grant_type":        "fb_exchange_token",
+                "client_id":         META_APP_ID,
+                "client_secret":     META_APP_SECRET,
+                "fb_exchange_token": short_token,
+            }
+        )
+        long_token = r2.json().get("access_token", short_token)
+
+    return RedirectResponse(f"/#meta_token={long_token}")
+
+# ── 3. Posts de la página o cuenta IG ────────────────────────────────────────
+@app.get("/meta/posts")
+async def meta_get_posts(token: str, source: str = "facebook"):
+    async with httpx.AsyncClient() as client:
+        if source == "instagram":
+            pages_r = await client.get(
+                "https://graph.facebook.com/v19.0/me/accounts",
+                params={"access_token": token, "fields": "id,name,instagram_business_account"}
+            )
+            pages = pages_r.json().get("data", [])
+            ig_accounts = [
+                {"id": p["instagram_business_account"]["id"], "name": p["name"]}
+                for p in pages if p.get("instagram_business_account")
+            ]
+            if not ig_accounts:
+                raise HTTPException(404, "No se encontró cuenta de Instagram Business conectada")
+            ig = ig_accounts[0]
+            posts_r = await client.get(
+                f"https://graph.facebook.com/v19.0/{ig['id']}/media",
+                params={"access_token": token, "fields": "id,caption,timestamp,media_type,permalink", "limit": 20}
+            )
+            return {"source": "instagram", "account": ig["name"], "posts": posts_r.json().get("data", [])}
+
+        else:  # facebook
+            pages_r = await client.get(
+                "https://graph.facebook.com/v19.0/me/accounts",
+                params={"access_token": token, "fields": "id,name,access_token"}
+            )
+            pages = pages_r.json().get("data", [])
+            if not pages:
+                raise HTTPException(404, "No se encontraron páginas de Facebook")
+            page = pages[0]
+            feed_r = await client.get(
+                f"https://graph.facebook.com/v19.0/{page['id']}/posts",
+                params={"access_token": page["access_token"], "fields": "id,message,created_time,permalink_url", "limit": 20}
+            )
+            return {"source": "facebook", "page": page["name"], "posts": feed_r.json().get("data", [])}
+
+# ── 4. Comentarios de un post ─────────────────────────────────────────────────
+@app.get("/meta/comments")
+async def meta_get_comments(token: str, post_id: str, source: str = "facebook"):
+    async with httpx.AsyncClient() as client:
+        if source == "instagram":
+            r = await client.get(
+                f"https://graph.facebook.com/v19.0/{post_id}/comments",
+                params={"access_token": token, "fields": "id,text,username,timestamp", "limit": 500}
+            )
+        else:
+            r = await client.get(
+                f"https://graph.facebook.com/v19.0/{post_id}/comments",
+                params={"access_token": token, "fields": "id,message,from,created_time", "limit": 500}
+            )
+
+        data = r.json()
+        if "error" in data:
+            raise HTTPException(400, f"Error Meta API: {data['error'].get('message')}")
+
+        normalized = []
+        for c in data.get("data", []):
+            if source == "instagram":
+                normalized.append({
+                    "id":        c.get("id"),
+                    "username":  c.get("username", ""),
+                    "name":      c.get("username", ""),
+                    "text":      c.get("text", ""),
+                    "timestamp": c.get("timestamp")
+                })
+            else:
+                frm = c.get("from", {})
+                normalized.append({
+                    "id":        c.get("id"),
+                    "username":  frm.get("id", ""),
+                    "name":      frm.get("name", ""),
+                    "text":      c.get("message", ""),
+                    "timestamp": c.get("created_time")
+                })
+
+        return {"total": len(normalized), "comments": normalized}
