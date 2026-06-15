@@ -924,20 +924,19 @@ let metaSource = 'fb';
 let metaPosts = [];
 
 function connectMeta() {
-  const popup = window.open('/meta/login', 'MetaLogin', 'width=600,height=700,left=400,top=100');
-  const check = setInterval(() => {
-    try {
-      if (popup.closed) { clearInterval(check); return; }
-      const hash = popup.location.hash;
-      if (hash.includes('meta_token=')) {
-        metaToken = hash.split('meta_token=')[1];
-        sessionStorage.setItem('meta_token', metaToken);
-        popup.close();
-        clearInterval(check);
-        onMetaConnected();
-      }
-    } catch(e) {}
-  }, 500);
+  window.addEventListener('message', function handler(e) {
+    const msg = e.data || '';
+    if (msg.includes('meta_token=')) {
+      metaToken = msg.split('meta_token=')[1];
+      sessionStorage.setItem('meta_token', metaToken);
+      window.removeEventListener('message', handler);
+      onMetaConnected();
+    } else if (msg.includes('meta_error=')) {
+      window.removeEventListener('message', handler);
+      notify('❌ Error al conectar con Facebook');
+    }
+  });
+  window.open('/meta/login', 'MetaLogin', 'width=600,height=700,left=400,top=100');
 }
 
 function disconnectMeta() {
