@@ -187,7 +187,7 @@ async def run_sorteo(data: dict):
 META_APP_ID       = os.getenv("META_APP_ID")
 META_APP_SECRET   = os.getenv("META_APP_SECRET")
 META_REDIRECT_URI = os.getenv("META_REDIRECT_URI", "https://appsorteos.up.railway.app/meta/callback")
-META_SCOPES       = "pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_comments"
+META_SCOPES = "pages_show_list,pages_read_user_content"
 
 # ── 1. Iniciar login con Facebook ─────────────────────────────────────────────
 @app.get("/meta/login")
