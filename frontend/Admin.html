@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SorteoApp — Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');
+  :root { --bg:#0a0a0f; --surface:#13131a; --surface2:#1c1c28; --border:#2a2a3a; --accent:#7c6dfa; --accent2:#fa6d9a; --text:#e8e8f0; --muted:#6b6b85; --green:#00e676; --gold:#f5c842; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* LOGIN */
+  #loginWrap { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .login-card { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:40px; width:100%; max-width:360px; margin:20px; }
+  .login-card h2 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; margin-bottom:6px; }
+  .login-card p { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .login-card input { width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:14px; margin-bottom:12px; outline:none; }
+  .login-card input:focus { border-color:var(--accent); }
+  .login-card button { width:100%; padding:13px; border-radius:10px; border:none; background:linear-gradient(135deg,var(--accent),#5e4fe8); color:white; font-family:'Syne',sans-serif; font-size:15px; font-weight:700; cursor:pointer; }
+  .err { color:var(--accent2); font-size:13px; margin-bottom:10px; display:none; }
+
+  /* PANEL */
+  #panel { display:none; padding:28px 24px; max-width:1100px; margin:0 auto; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+  .topbar h1 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+  .topbar button { background:transparent; border:1px solid var(--border); color:var(--muted); padding:7px 14px; border-radius:8px; font-size:12px; cursor:pointer; }
+  .topbar button:hover { color:var(--accent2); border-color:var(--accent2); }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:28px; }
+  .stat { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
+  .stat .label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .stat .value { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; }
+  .stat .value.green { color:var(--green); }
+  .stat .value.gold { color:var(--gold); }
+  .stat .value.purple { color:var(--accent); }
+  .stat .value.pink { color:var(--accent2); }
+
+  /* TABLA */
+  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .table-header { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:10px; }
+  .table-header h3 { font-family:'Syne',sans-serif; font-size:15px; font-weight:700; }
+  .search-input { background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 12px; outline:none; width:220px; }
+  .search-input:focus { border-color:var(--accent); }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; padding:10px 16px; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); background:var(--surface2); font-weight:600; }
+  td { padding:12px 16px; font-size:13px; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .plan-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .plan-pro { background:rgba(245,200,66,0.15); color:var(--gold); }
+  .plan-gratis { background:rgba(124,109,250,0.15); color:var(--accent); }
+  .action-btn { padding:5px 10px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; border:none; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
+  .btn-make-pro { background:rgba(245,200,66,0.15); color:var(--gold); border:1px solid rgba(245,200,66,0.3); }
+  .btn-make-pro:hover { background:rgba(245,200,66,0.25); }
+  .btn-make-gratis { background:rgba(250,109,154,0.1); color:var(--accent2); border:1px solid rgba(250,109,154,0.2); }
+  .btn-make-gratis:hover { background:rgba(250,109,154,0.2); }
+  .btn-reset { background:rgba(124,109,250,0.1); color:var(--accent); border:1px solid rgba(124,109,250,0.2); margin-left:4px; }
+  .btn-reset:hover { background:rgba(124,109,250,0.2); }
+  .empty-row td { text-align:center; color:var(--muted); padding:32px; }
+  .loading { text-align:center; padding:40px; color:var(--muted); font-size:14px; }
+  .notif { position:fixed; bottom:24px; right:24px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 18px; font-size:13px; color:var(--text); z-index:999; animation:slideIn 0.3s ease; max-width:280px; box-shadow:0 8px 30px rgba(0,0,0,0.4); }
+  @keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+  .refresh-btn { background:rgba(124,109,250,0.1); border:1px solid rgba(124,109,250,0.2); color:var(--accent); padding:7px 14px; border-radius:8px; font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .refresh-btn:hover { background:rgba(124,109,250,0.2); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginWrap">
+  <div class="login-card">
+    <h2>🔐 Panel Admin</h2>
+    <p>Solo para administradores de SorteoApp</p>
+    <p class="err" id="loginErr">Contraseña incorrecta</p>
+    <input type="password" id="secretInput" placeholder="Contraseña de admin" autocomplete="off">
+    <button onclick="adminLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+  <div class="topbar">
+    <h1>🎲 SorteoApp — Admin</h1>
+    <div style="display:flex;gap:8px;">
+      <button class="refresh-btn" onclick="loadData()">🔄 Actualizar</button>
+      <button onclick="adminLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="label">Total usuarios</div><div class="value purple" id="statTotal">—</div></div>
+    <div class="stat"><div class="label">Usuarios Pro</div><div class="value gold" id="statPro">—</div></div>
+    <div class="stat"><div class="label">Usuarios Gratis</div><div class="value purple" id="statGratis">—</div></div>
+    <div class="stat"><div class="label">Sorteos este mes</div><div class="value green" id="statSorteos">—</div></div>
+    <div class="stat"><div class="label">MRR estimado</div><div class="value gold" id="statMRR">—</div></div>
+  </div>
+
+  <!-- TABLA -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>👥 Usuarios</h3>
+      <input class="search-input" id="searchInput" placeholder="🔍 Buscar por email..." oninput="filterTable()">
+    </div>
+    <div id="tableContainer" class="loading">Cargando usuarios...</div>
+  </div>
+</div>
+
+<script>
+let adminSecret = '';
+let allUsers = [];
+
+function adminLogin() {
+  const val = document.getElementById('secretInput').value.trim();
+  if (!val) return;
+  adminSecret = val;
+  loadData();
+}
+
+document.getElementById('secretInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') adminLogin();
+});
+
+function adminLogout() {
+  adminSecret = '';
+  allUsers = [];
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('secretInput').value = '';
+}
+
+async function loadData() {
+  try {
+    const r = await fetch(`/admin/data?secret=${encodeURIComponent(adminSecret)}`);
+    if (r.status === 403) {
+      document.getElementById('loginErr').style.display = 'block';
+      return;
+    }
+    const data = await r.json();
+    document.getElementById('loginErr').style.display = 'none';
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+
+    // Stats
+    const s = data.stats;
+    document.getElementById('statTotal').textContent = s.total_usuarios;
+    document.getElementById('statPro').textContent = s.usuarios_pro;
+    document.getElementById('statGratis').textContent = s.usuarios_gratis;
+    document.getElementById('statSorteos').textContent = s.sorteos_este_mes;
+    document.getElementById('statMRR').textContent = '$' + s.mrr.toFixed(2);
+
+    allUsers = data.usuarios;
+    renderTable(allUsers);
+  } catch(e) {
+    notify('❌ Error de conexión');
+  }
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = allUsers.filter(u => u.email.toLowerCase().includes(q));
+  renderTable(filtered);
+}
+
+function renderTable(users) {
+  const container = document.getElementById('tableContainer');
+  if (users.length === 0) {
+    container.innerHTML = '<table><tr class="empty-row"><td colspan="5">Sin usuarios</td></tr></table>';
+    return;
+  }
+  container.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Plan</th>
+          <th>Sorteos mes</th>
+          <th>Registro</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${users.map(u => {
+          const fecha = u.created_at ? new Date(u.created_at).toLocaleDateString('es-ES') : '—';
+          const isPro = u.plan === 'pro';
+          return `<tr>
+            <td>${u.email}</td>
+            <td><span class="plan-badge ${isPro ? 'plan-pro' : 'plan-gratis'}">${isPro ? '👑 PRO' : '🎉 GRATIS'}</span></td>
+            <td>${u.sorteos_mes ?? 0} / ${isPro ? '∞' : '3'}</td>
+            <td>${fecha}</td>
+            <td>
+              ${isPro
+                ? `<button class="action-btn btn-make-gratis" onclick="setPlan('${u.email}','gratis')">→ Gratis</button>`
+                : `<button class="action-btn btn-make-pro" onclick="setPlan('${u.email}','pro')">→ Pro</button>`
+              }
+              <button class="action-btn btn-reset" onclick="resetCounter('${u.email}')">Reset</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function setPlan(email, plan) {
+  try {
+    const r = await fetch('/admin/set-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: adminSecret, email, plan })
+    });
+    if (!r.ok) { notify('❌ Error al cambiar plan'); return; }
+    notify(`✅ ${email} → ${plan.toUpperCase()}`);
+    await loadData();
+  } catch(e) { notify('❌ Error de conexión'); }
+}
+
+async function resetCounter(email) {
+  try {
+    const r = await fetch('/admin/reset-counter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: adminSecret, email })
+    });
+    if (!r.ok) { notify('❌ Error'); return; }
+    notify(`🔄 Contador de ${email} reseteado`);
+    await loadData();
+  } catch(e) { notify('❌ Error de conexión'); }
+}
+
+function notify(msg) {
+  const n = document.createElement('div');
+  n.className = 'notif';
+  n.textContent = msg;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3000);
+}
+</script>
+</body>
+</html>
