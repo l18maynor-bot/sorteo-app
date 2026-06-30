@@ -1098,10 +1098,20 @@ function parseComments(source) {
   lines.forEach(line => {
     let name = '', text = line;
     const colonMatch = line.match(/^(.+?):\s*(.*)$/);
-    const atMatch = line.match(/^(@[\w.]+)\s*(.*)/);
-    if (colonMatch) { name = colonMatch[1].trim(); text = colonMatch[2].trim(); }
-    else if (atMatch) { name = atMatch[1].trim(); text = atMatch[2].trim(); }
-    else { const words = line.split(' '); name = words[0]; text = words.slice(1).join(' '); }
+    const atMatch = line.match(/^(@[\w.]+)\s+(.+)/);
+    if (colonMatch) {
+      // Formato "Nombre Apellido: comentario"
+      name = colonMatch[1].trim();
+      text = colonMatch[2].trim();
+    } else if (atMatch) {
+      // Formato "@usuario comentario" (con espacio Y texto después)
+      name = atMatch[1].trim();
+      text = atMatch[2].trim();
+    } else {
+      // Sin separador claro: toda la línea es el nombre
+      name = line.trim();
+      text = '';
+    }
     if (!name) return;
     const colors = source === 'fb' ? COLORS_FB : COLORS_IG;
     const color = colors[Math.floor(Math.random() * colors.length)];
@@ -1110,7 +1120,7 @@ function parseComments(source) {
   });
   el.value = '';
   renderPool();
-  notify(`✅ ${added} comentario(s) de ${source.toUpperCase()} agregados`);
+  notify(`✅ ${added} participante(s) de ${source.toUpperCase()} agregados`);
 }
 
 function renderPool() {
